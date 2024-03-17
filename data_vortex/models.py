@@ -1,8 +1,8 @@
 import datetime
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl, field_validator
+from pydantic import BaseModel, HttpUrl, field_validator, ConfigDict
 
 
 class PriceUnit(Enum):
@@ -20,12 +20,14 @@ class Currency(Enum):
 
 class Price(BaseModel):
     price: int
-    currency: Currency
+    currency: Optional[Currency]
     per: PriceUnit
 
 
 # noinspection PyNestedDecorators
 class ListingInfo(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     property_id: str
     image_urls: List[HttpUrl]
     description: str
