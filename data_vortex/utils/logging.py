@@ -1,14 +1,13 @@
-from .config import settings
-
 import datetime
 import logging
 import logging.handlers
-import os
-from typing import Optional
+from pathlib import Path
+from typing import ClassVar, Optional
 
 import ujson
 from json_log_formatter import JSONFormatter
 
+from .config import settings
 from .exceptions import BadLogFormatError
 
 GREY = "\x1b[38;21m"
@@ -26,7 +25,7 @@ CRITICAL = BOLD_RED + "{}" + RESET
 class ColourfulFormatter(logging.Formatter):
     """Logging Formatter to add colors and count warning / errors"""
 
-    FORMATS = {
+    FORMATS: ClassVar = {
         logging.DEBUG: DEBUG,
         logging.INFO: INFO,
         logging.WARNING: WARNING,
@@ -88,7 +87,7 @@ class CustomisedVerboseJSONFormatter(CustomisedJSONFormatter):
             extra["stack_info"] = None
         extra["thread"] = record.thread
         extra["threadName"] = record.threadName
-        return super(CustomisedVerboseJSONFormatter, self).json_record(
+        return super(CustomisedVerboseJSONFormatter).json_record(
             message,
             extra,
             record,
@@ -98,8 +97,8 @@ class CustomisedVerboseJSONFormatter(CustomisedJSONFormatter):
 def get_logger(
     name: str,
     log_level: str,
-    log_file: Optional[str] = None,
-    sys_log: Optional[str] = None,
+    log_file: Optional[Path] = None,
+    sys_log: Optional[Path] = None,
     verbose: bool = False,
     as_json: bool = False,
 ) -> logging.Logger:
@@ -118,15 +117,15 @@ def get_logger(
         formatter = ColourfulFormatter(fmt)  # type: ignore
 
     if log_file:
-        parent_dir = os.path.dirname(log_file)
-        os.makedirs(os.path.abspath(parent_dir), exist_ok=True)
+        parent_dir = log_file.parent
+        parent_dir.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(filename=log_file)
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
     if sys_log:
-        syslog_handler = logging.handlers.SysLogHandler(address=sys_log)
+        syslog_handler = logging.handlers.SysLogHandler(address=str(sys_log))
         syslog_handler.setLevel(level)
         syslog_handler.setFormatter(formatter)
         logger.addHandler(syslog_handler)
@@ -140,7 +139,7 @@ def get_logger(
 
 
 log = get_logger(
-    name=os.path.basename(__file__),
+    name=Path(__file__).name,
     log_level=settings.LOG_LEVEL,
     log_file=settings.LOG_DIR,
     sys_log=settings.SYSLOG_ADDR,

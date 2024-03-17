@@ -1,13 +1,11 @@
 import time
 from functools import lru_cache
-from typing import Optional, Union
-
-from pydantic_settings import BaseSettings
-import os
 from importlib import metadata
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Optional, Union
 
 import tomlkit
+from pydantic_settings import BaseSettings
 
 
 def _get_project_meta(name: str = "unknown") -> Dict:
@@ -17,7 +15,7 @@ def _get_project_meta(name: str = "unknown") -> Dict:
     version = "unknown"
     description = ""
     try:
-        with open("./pyproject.toml") as pyproject:
+        with Path("./pyproject.toml").open() as pyproject:
             file_contents = pyproject.read()
         parsed = dict(tomlkit.parse(file_contents))["tool"]["poetry"]
         name = parsed["name"]
@@ -58,10 +56,11 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
     VERBOSE_LOGS: Union[bool, int, str] = True
     JSON_LOGS: Union[bool, int, str] = False
-    LOG_DIR: str = os.sep.join(
-        ["logs", f"{current_timestamp}-{LOGGER_NAME}-{LOG_LEVEL}.log"]
+    LOG_DIR: Path = (
+        Path("logs") / f"{current_timestamp}-{LOGGER_NAME}-{LOG_LEVEL}.log"
     )
-    SYSLOG_ADDR: Optional[str] = None
+
+    SYSLOG_ADDR: Optional[Path] = None
 
     class Config:
         env_file = ".env"
@@ -70,9 +69,9 @@ class Settings(BaseSettings):
         secrets_dir = "secrets"
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
-    return Settings(_env_file=f"{os.getcwd()}/.env")
+    return Settings(_env_file=f"{Path.cwd()}/.env")
 
 
 settings = get_settings()
