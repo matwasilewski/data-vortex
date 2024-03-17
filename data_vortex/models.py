@@ -43,10 +43,23 @@ class ListingInfo(BaseModel):
     @field_validator("added_date", mode="before")
     @classmethod
     def parse_added_date(cls, v: str) -> datetime.date:
-        if v.startswith("Added on "):
+        if isinstance(v, datetime.date):
+            return v
+        elif isinstance(v, datetime.datetime):
+            return v.date()
+        elif not isinstance(v, str):
+            raise ValueError("Invalid date format")
+        elif v.startswith("Added on "):
             date_str = v.replace("Added on ", "")
-            return datetime.datetime.strptime(date_str, "%d/%m/%Y").date()
-        raise ValueError("Invalid added date format")
+        else:
+            date_str = v
+
+        for date_format in ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"]:
+            try:
+                return datetime.datetime.strptime(date_str, date_format).date()
+            except ValueError:
+                pass
+        raise ValueError("Invalid date format")
 
     @field_validator("price", mode="before")
     @classmethod
