@@ -3,3 +3,4 @@
 .ipynb_checkpoints/*
 .coverage
 tests/.coverage
+/tests/logs/*
