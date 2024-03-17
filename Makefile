@@ -1,6 +1,6 @@
 .PHONY: help check-bootstrap-dependencies check-poetry check-tools check-docker bootstrap setup install update format poetry-check lint-check format-check type-check lint unit unit-coverage gcp-authenticate
 
-POETRY_VERSION?=1.5
+POETRY_VERSION?=1.6
 PYTHON_VERSION?=$(shell cat .python-version | tr -d '[:space:]')
 NEXT_POETRY_VERSION:=$(shell echo $(POETRY_VERSION) | awk -F. '{print $$1 "." $$2+1}')
 POETRY?=poetry@$(POETRY_VERSION)
