@@ -3,11 +3,11 @@ from typing import List
 from bs4 import BeautifulSoup
 from pydantic import HttpUrl, ValidationError
 
-from data_vortex.models import ListingInfo
+from data_vortex.models import GenericListing
 from data_vortex.utils.logging import log
 
 
-def get_listings(soup: BeautifulSoup) -> List[ListingInfo]:
+def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
     listings = soup.find_all("div", class_="l-searchResult")
     listings_result = []
 
@@ -44,7 +44,7 @@ def get_listings(soup: BeautifulSoup) -> List[ListingInfo]:
         added_date = added_date_elem.text.strip() if added_date_elem else ""
 
         try:
-            listing_info = ListingInfo(
+            listing_info = GenericListing(
                 property_id=property_id,
                 image_urls=image_urls,
                 description=description,
