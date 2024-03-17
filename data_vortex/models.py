@@ -1,8 +1,9 @@
 import datetime
+import logging
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl, field_validator, ConfigDict
+from pydantic import BaseModel, HttpUrl, field_validator, ConfigDict, Field
 
 
 class PriceUnit(Enum):
@@ -21,11 +22,11 @@ class Currency(Enum):
 class Price(BaseModel):
     price: int
     currency: Optional[Currency]
-    per: PriceUnit
+    per: Optional[PriceUnit]
 
 
 # noinspection PyNestedDecorators
-class ListingInfo(BaseModel):
+class GenericListing(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     property_id: str
@@ -33,6 +34,9 @@ class ListingInfo(BaseModel):
     description: str
     price: Price
     added_date: datetime.date
+    created_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    _default_currency: Optional[Currency] = None
+    _default_price_unit: Optional[PriceUnit] = None
 
     @field_validator("property_id")
     @classmethod
@@ -63,17 +67,40 @@ class ListingInfo(BaseModel):
                 pass
         raise ValueError("Invalid date format")
 
-    @field_validator("price", mode="before")
+    @field_validator('price', mode="before")
     @classmethod
-    def parse_price(cls, v: str) -> Price:
-        price_str, _, frequency = v.partition(" ")
-        amount = float(
-            price_str[1:].replace(",", "")
-        )  # Remove currency symbol and commas
-        currency_symbol = price_str[0]
-        currency = Currency(currency_symbol)
-        per = (
-            PriceUnit.PER_MONTH if "pcm" in frequency else PriceUnit.PER_WEEK
-        )  # Simplified logic, adjust as needed
+    def parse_price(cls, v: str):
+        # Initialize variables
+        amount = 0
+        currency = None
+        per = None
 
+        # Check for currency and remove it from the string
+        for cur in Currency:
+            if cur.value in v:
+                currency = cur
+                v = v.replace(cur.value, '')
+                break
+
+        # Check for pricing frequency
+        if "pcm" in v:
+            per = PriceUnit.PER_MONTH
+            v = v.replace("pcm", '')
+        elif "pw" in v:
+            per = PriceUnit.PER_WEEK
+            v = v.replace("pw", '')
+
+        # Remove any commas and convert to integer
+        amount = int(v.replace(',', ''))
+
+        # Return a Price instance
         return Price(price=amount, currency=currency, per=per)
+
+class RightmoveRentalListing(GenericListing):
+    _default_currency: Currency = Currency.GBP
+    _default_price_unit: PriceUnit = PriceUnit.PER_MONTH
+
+
+class RightmoveSaleListing(GenericListing):
+    _default_currency: Currency = Currency.GBP
+    _default_price_unit: PriceUnit = PriceUnit.ONE_OFF
