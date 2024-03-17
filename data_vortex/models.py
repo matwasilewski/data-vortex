@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
@@ -106,3 +106,33 @@ class RightmoveRentalListing(GenericListing):
 class RightmoveSaleListing(GenericListing):
     _default_currency: Currency = Currency.GBP
     _default_price_unit: PriceUnit = PriceUnit.ONE_OFF
+
+
+class RequestData(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    url: str
+    params: Dict[str, str]
+    headers: Dict[str, str]
+
+
+class RightmoveRentParams(BaseModel):
+    searchType: str = "RENT"
+    locationIdentifier: str = "REGION^87490"  # London
+    insId: str = "1"
+    radius: str = "0.0"
+    minPrice: str = ""
+    maxPrice: str = ""
+    minBedrooms: str = ""
+    maxBedrooms: str = ""
+    displayPropertyType: str = ""
+    maxDaysSinceAdded: str = ""
+    sortByPriceDescending: str = ""
+    _includeLetAgreed: str = "on"
+    primaryDisplayPropertyType: str = ""
+    secondaryDisplayPropertyType: str = ""
+    oldDisplayPropertyType: str = ""
+    oldPrimaryDisplayPropertyType: str = ""
+    letType: str = ""
+    letFurnishType: str = ""
+    houseFlatShare: str = ""
