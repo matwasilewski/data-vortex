@@ -1,9 +1,8 @@
 import datetime
-import logging
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, HttpUrl, field_validator, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
 class PriceUnit(Enum):
@@ -27,14 +26,16 @@ class Price(BaseModel):
 
 # noinspection PyNestedDecorators
 class GenericListing(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
     property_id: str
     image_urls: List[HttpUrl]
     description: str
     price: Price
     added_date: datetime.date
-    created_date: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    created_date: datetime.datetime = Field(
+        default_factory=datetime.datetime.now
+    )
     _default_currency: Optional[Currency] = None
     _default_price_unit: Optional[PriceUnit] = None
 
@@ -67,7 +68,7 @@ class GenericListing(BaseModel):
                 pass
         raise ValueError("Invalid date format")
 
-    @field_validator('price', mode="before")
+    @field_validator("price", mode="before")
     @classmethod
     def parse_price(cls, v: str):
         # Initialize variables
@@ -79,22 +80,23 @@ class GenericListing(BaseModel):
         for cur in Currency:
             if cur.value in v:
                 currency = cur
-                v = v.replace(cur.value, '')
+                v = v.replace(cur.value, "")
                 break
 
         # Check for pricing frequency
         if "pcm" in v:
             per = PriceUnit.PER_MONTH
-            v = v.replace("pcm", '')
+            v = v.replace("pcm", "")
         elif "pw" in v:
             per = PriceUnit.PER_WEEK
-            v = v.replace("pw", '')
+            v = v.replace("pw", "")
 
         # Remove any commas and convert to integer
-        amount = int(v.replace(',', ''))
+        amount = int(v.replace(",", ""))
 
         # Return a Price instance
         return Price(price=amount, currency=currency, per=per)
+
 
 class RightmoveRentalListing(GenericListing):
     _default_currency: Currency = Currency.GBP

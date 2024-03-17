@@ -2,7 +2,13 @@ import datetime
 
 import pytest
 
-from data_vortex.models import GenericListing, Price, Currency, PriceUnit, RightmoveRentalListing
+from data_vortex.models import (
+    Currency,
+    GenericListing,
+    Price,
+    PriceUnit,
+    RightmoveRentalListing,
+)
 
 
 @pytest.mark.parametrize(
@@ -28,7 +34,6 @@ def test_date_parsing(added_date: str) -> None:
         description="Lorem ipsum",
         price="£1,000 pcm",
         added_date=added_date,
-        phone_number="123456789",
     )
     assert l_info.added_date == datetime.date(2024, 2, 10)
 
@@ -38,8 +43,14 @@ def test_date_parsing(added_date: str) -> None:
     [
         ("1000$", Price(price=1000, currency=Currency.USD, per=None)),
         ("$1000", Price(price=1000, currency=Currency.USD, per=None)),
-        ("£1000 pcm", Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH)),
-        ("£1000 pw", Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_WEEK)),
+        (
+            "£1000 pcm",
+            Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH),
+        ),
+        (
+            "£1000 pw",
+            Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_WEEK),
+        ),
         ("1000£", Price(price=1000, currency=Currency.GBP, per=None)),
         ("£100,000", Price(price=1000000, currency=Currency.GBP, per=None)),
         ("10000zl", Price(price=10000, currency=Currency.PLN, per=None)),
@@ -56,7 +67,6 @@ def test_price_parsing_simple(price: str, expected: Price) -> None:
         price=price,
         added_date="2024-02-10",
         phone_number="123456789",
-
     )
     assert l_info.price == expected
 
@@ -66,7 +76,10 @@ def test_price_parsing_simple(price: str, expected: Price) -> None:
     "price, expected",
     [
         ("1000USD", Price(price=1000, currency=Currency.USD, per=None)),
-        ("£1000.70 pcm", Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH)),
+        (
+            "£1000.70 pcm",
+            Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH),
+        ),
         ("1000£", Price(price=1000, currency=Currency.GBP, per=None)),
         ("100zł", Price(price=100, currency=Currency.PLN, per=None)),
     ],
@@ -82,6 +95,5 @@ def test_price_parsing_complicated(price: str, expected: Price) -> None:
         price=price,
         added_date="2024-02-10",
         phone_number="123456789",
-
     )
     assert l_info.price == expected
