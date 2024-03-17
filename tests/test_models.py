@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from data_vortex.models import ListingInfo, Price
+from data_vortex.models import GenericListing, Price, Currency, PriceUnit, RightmoveRentalListing
 
 
 @pytest.mark.parametrize(
@@ -19,7 +19,7 @@ from data_vortex.models import ListingInfo, Price
     ],
 )
 def test_date_parsing(added_date: str) -> None:
-    l_info = ListingInfo(
+    l_info = GenericListing(
         property_id="144595010",
         image_urls=[
             "https://media.rightmove.co.uk:443/dir/crop/10:9-16:9/260k/259202/144595010"
@@ -33,31 +33,31 @@ def test_date_parsing(added_date: str) -> None:
     assert l_info.added_date == datetime.date(2024, 2, 10)
 
 
-def test_date_parsing_2() -> None:
-    l_info = ListingInfo(
+@pytest.mark.parametrize(
+    "price, expected",
+    [
+        ("1000USD", Price(price=1000, currency=Currency.USD, per=None)),
+        ("£1000", Price(price=1000, currency=Currency.GBP, per=None)),
+        ("£1000 pcm", Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH)),
+        ("£1000 pw", Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_WEEK)),
+        ("£1000.70 pcm", Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH)),
+        ("1000£", Price(price=1000, currency=Currency.GBP, per=None)),
+        ("£100,000", Price(price=1000000, currency=Currency.GBP, per=None)),
+        ("100zł", Price(price=100, currency=Currency.PLN, per=None)),
+        ("10000zl", Price(price=10000, currency=Currency.PLN, per=None)),
+    ],
+)
+def test_price_parsing_gbp(price: str, expected: Price) -> None:
+    l_info = RightmoveRentalListing(
         property_id="144595010",
         image_urls=[
             "https://media.rightmove.co.uk:443/dir/crop/10:9-16:9/260k/259202/144595010"
             "/259202_THECI_005196_IMG_00_0000_max_476x317.jpeg"
         ],
         description="Lorem ipsum",
-        price="£1,000 pcm",
+        price=price,
         added_date="2024-02-10",
         phone_number="123456789",
-    )
-    assert l_info.added_date == datetime.date(2024, 2, 10)
 
-
-def test_price_parsing_gbp() -> None:
-    l_info = ListingInfo(
-        property_id="144595010",
-        image_urls=[
-            "https://media.rightmove.co.uk:443/dir/crop/10:9-16:9/260k/259202/144595010"
-            "/259202_THECI_005196_IMG_00_0000_max_476x317.jpeg"
-        ],
-        description="Lorem ipsum",
-        price="£1,000 pcm",
-        added_date="2024-02-10",
-        phone_number="123456789",
     )
-    assert l_info.price == Price(price=1000.0, currency="GBP", per="pcm")
+    assert l_info.price == expected
