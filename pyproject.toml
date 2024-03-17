@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "data-vortex"
+name = "data_vortex"
 version = "0.1.0"
 authors = ["0.1.0 <mat.p.wasilewski@gmail.com>"]
 description = ""
