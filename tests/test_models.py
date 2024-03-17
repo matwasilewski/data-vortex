@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from data_vortex.models import Price, ListingInfo
+from data_vortex.models import ListingInfo, Price
 
 
 @pytest.mark.parametrize(
@@ -14,6 +14,8 @@ from data_vortex.models import Price, ListingInfo
         ("2024/10/24",),
         ("Added on 10/02/2024",),
         ("Added on 10-02-2024",),
+        (datetime.date(2024, 2, 10),),
+        (datetime.datetime(2024, 2, 10, 0, 0, 0),),
     ],
 )
 def test_date_parsing(added_date: str) -> None:
@@ -29,6 +31,7 @@ def test_date_parsing(added_date: str) -> None:
         phone_number="123456789",
     )
     assert l_info.added_date == datetime.date(2024, 2, 10)
+
 
 def test_date_parsing_2() -> None:
     l_info = ListingInfo(
@@ -57,6 +60,4 @@ def test_price_parsing_gbp() -> None:
         added_date="2024-02-10",
         phone_number="123456789",
     )
-    assert l_info.price == Price(
-        price=1000.0, currency="GBP", per="pcm"
-    )
+    assert l_info.price == Price(price=1000.0, currency="GBP", per="pcm")
