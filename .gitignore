@@ -1,3 +1,5 @@
 .idea/*
 .env
 .ipynb_checkpoints/*
+.coverage
+tests/.coverage
