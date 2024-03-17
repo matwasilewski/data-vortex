@@ -1,6 +1,7 @@
 from typing import List
 
 from bs4 import BeautifulSoup
+from pydantic import HttpUrl, ValidationError
 
 from data_vortex.models import ListingInfo
 from data_vortex.utils.logging import log
@@ -17,10 +18,16 @@ def get_listings(soup: BeautifulSoup) -> List[ListingInfo]:
             log.warn("Found empty property!")
             continue
 
-        # Extract the image URLs
-        image_urls = [
-            img["src"] for img in listing.find_all("img") if "src" in img.attrs
-        ]
+        image_urls = []
+        for img in listing.find_all("img"):
+            if "src" in img.attrs:
+                try:
+                    # Attempt to create an HttpUrl instance to validate the URL
+                    validated_url = HttpUrl(img["src"])
+                    image_urls.append(validated_url)
+                except ValidationError:
+                    # If the URL is not valid, it will not be added to the list
+                    pass
 
         # Extract the description
         description_elem = listing.find("span", {"itemprop": "description"})
@@ -36,21 +43,17 @@ def get_listings(soup: BeautifulSoup) -> List[ListingInfo]:
         )
         added_date = added_date_elem.text.strip() if added_date_elem else ""
 
-        # Extract the contact phone number
-        phone_number_elem = listing.find(
-            "a", class_="propertyCard-contactsPhoneNumber"
-        )
-        phone_number = (
-            phone_number_elem.text.strip() if phone_number_elem else ""
-        )
+        try:
+            listing_info = ListingInfo(
+                property_id=property_id,
+                image_urls=image_urls,
+                description=description,
+                price=price,
+                added_date=added_date,
+            )
+            listings_result.append(listing_info)
+        except ValidationError as e:
+            log.error(f"Error processing listing: {e}")
+            continue
 
-        listing_info = ListingInfo(
-            property_id=property_id,
-            image_urls=image_urls,
-            description=description,
-            price=price,
-            added_date=added_date,
-            phone_number=phone_number,
-        )
-        listings_result.append(listing_info)
     return listings_result
