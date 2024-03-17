@@ -2,7 +2,7 @@ import time
 from functools import lru_cache
 from typing import Optional, Union
 
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 import os
 from importlib import metadata
 from typing import Dict
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     from the dotenv file.
     """
 
-    current_timestamp = int(time.time())
+    current_timestamp: int = int(time.time())
 
     # Meta
     APP_NAME: str = str(PKG_META["name"])
