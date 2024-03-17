@@ -1,0 +1,80 @@
+[tool.poetry]
+name = "data-vortex"
+version = "0.1.0"
+authors = ["0.1.0 <mat.p.wasilewski@gmail.com>"]
+description = ""
+packages = [
+    { include = "data-vortex" },
+    { include = "data-vortex/**/*.py" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tomlkit = "^0.12.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "6.2.5"
+pytest-cov = "3.0.0"
+pytest-asyncio = "0.16.0"
+ruff = "^0.1.9"
+mypy = "^1.8.0"
+
+[tool.pytest.ini_options]
+addopts = "--cov=src"
+log_cli_level = "DEBUG"
+markers = ['execution_timeout']
+
+[tool.ruff]
+target-version = "py38"
+line-length = 79
+extend-select = [
+    # https://beta.ruff.rs/docs/rules
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "I", # isort
+    "RUF",
+    "UP",  # pyupgrade
+    "PGH004", # Use specific rule codes when using `noqa`
+    "B", # bugbear
+    "A", # flake8-builtins
+    "C4", # flake8-comprehensions
+    "ERA", # eradicate
+    "PT", # flake-8-pytest-style
+    "C90", # mccabe
+    "N", # pep8-naming
+    "COM", # flake8-commas
+    "Q", # flake8-quotes
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "TD", # flake8-todos as we will use this for stats
+    "FIX", # flake8-fixme
+    "AIR", # Airflow lint
+    "F", # Pyflakes
+    "TCH", # flake8-type-checking
+    # "D", # pydoc-style
+]
+ignore = [
+    "RUF007", "E501",
+    "TD003", # todos having links to issues
+    "FIX002", # don't fail on todos only fix
+    "Q000",
+    "PT009",
+    "B008",
+    "COM812" # trailing comma, to make the Ruff formatter happy
+]
+task-tags = ["TODO", "FIXME"]
+output-format = "grouped"
+show-source = true
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+

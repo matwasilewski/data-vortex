@@ -1,0 +1,2 @@
+class BadLogFormatError(Exception):
+    pass
