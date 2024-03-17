@@ -8,14 +8,14 @@ from data_vortex.models import ListingInfo, Price
 @pytest.mark.parametrize(
     "added_date",
     [
-        ("2024-02-10",),
-        ("10-02-2024",),
-        ("10/02/2024",),
-        ("2024/10/24",),
-        ("Added on 10/02/2024",),
-        ("Added on 10-02-2024",),
-        (datetime.date(2024, 2, 10),),
-        (datetime.datetime(2024, 2, 10, 0, 0, 0),),
+        "2024-02-10",
+        "10-02-2024",
+        "10/02/2024",
+        "2024/02/10",
+        "Added on 10/02/2024",
+        "Added on 10-02-2024",
+        datetime.date(2024, 2, 10),
+        datetime.datetime(2024, 2, 10, 0, 0, 0),
     ],
 )
 def test_date_parsing(added_date: str) -> None:
