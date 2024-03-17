@@ -4,3 +4,8 @@
 .coverage
 tests/.coverage
 /tests/logs/*
+__pycache__/*
+.DS_Store
+data_vortex/__pycache__/*
+data_vortex/utils/__pycache__/*
+tests/__pycache__/*
