@@ -11,6 +11,13 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.9"
 tomlkit = "^0.12.3"
+jupyter = "^1.0.0"
+jupyter-server = "^2.13.0"
+ipykernel = "^6.29.3"
+pyopenssl = "^24.1.0"
+ndg-httpsclient = "^0.5.1"
+pyasn1 = "^0.5.1"
+beautifulsoup4 = "^4.12.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "6.2.5"
