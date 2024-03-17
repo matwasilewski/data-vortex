@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
@@ -108,31 +108,31 @@ class RightmoveSaleListing(GenericListing):
     _default_price_unit: PriceUnit = PriceUnit.ONE_OFF
 
 
+class RightmoveRentParams(BaseModel):
+    searchType: str = "RENT"  # noqa: N815
+    locationIdentifier: str = "REGION^87490"  # noqa: N815
+    insId: str = "1"  # noqa: N815
+    radius: str = "0.0"
+    minPrice: str = ""  # noqa: N815
+    maxPrice: str = ""  # noqa: N815
+    minBedrooms: str = ""  # noqa: N815
+    maxBedrooms: str = ""  # noqa: N815
+    displayPropertyType: str = ""  # noqa: N815
+    maxDaysSinceAdded: str = ""  # noqa: N815
+    sortByPriceDescending: str = ""  # noqa: N815
+    _includeLetAgreed: str = "on"  # noqa: N815
+    primaryDisplayPropertyType: str = ""  # noqa: N815
+    secondaryDisplayPropertyType: str = ""  # noqa: N815
+    oldDisplayPropertyType: str = ""  # noqa: N815
+    oldPrimaryDisplayPropertyType: str = ""  # noqa: N815
+    letType: str = ""  # noqa: N815
+    letFurnishType: str = ""  # noqa: N815
+    houseFlatShare: str = ""  # noqa: N815
+
+
 class RequestData(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     url: str
     params: Dict[str, str]
     headers: Dict[str, str]
-
-
-class RightmoveRentParams(BaseModel):
-    searchType: str = "RENT"
-    locationIdentifier: str = "REGION^87490"  # London
-    insId: str = "1"
-    radius: str = "0.0"
-    minPrice: str = ""
-    maxPrice: str = ""
-    minBedrooms: str = ""
-    maxBedrooms: str = ""
-    displayPropertyType: str = ""
-    maxDaysSinceAdded: str = ""
-    sortByPriceDescending: str = ""
-    _includeLetAgreed: str = "on"
-    primaryDisplayPropertyType: str = ""
-    secondaryDisplayPropertyType: str = ""
-    oldDisplayPropertyType: str = ""
-    oldPrimaryDisplayPropertyType: str = ""
-    letType: str = ""
-    letFurnishType: str = ""
-    houseFlatShare: str = ""
