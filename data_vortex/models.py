@@ -1,17 +1,17 @@
+import datetime
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, HttpUrl, validator
 
 
 # noinspection PyNestedDecorators
 class ListingInfo(BaseModel):
     property_id: str
-    image_urls: List[str]
+    image_urls: List[HttpUrl]
     description: str
     price: str
-    added_date: str
-    phone_number: str
+    added_date: datetime.date
 
     @field_validator("property_id")
     @classmethod
@@ -20,6 +20,15 @@ class ListingInfo(BaseModel):
         if v == "0":
             raise ValueError("ID must not be zero!")
         return v
+
+    @field_validator("added_date", mode="before")
+    @classmethod
+    def parse_added_date(cls, v: str) -> datetime.date:
+        if v.startswith("Added on "):
+            date_str = v.replace("Added on ", "")
+            return datetime.datetime.strptime(date_str, "%d/%m/%Y").date()
+        raise ValueError("Invalid added date format")
+
 
 
 class PriceUnit(Enum):
