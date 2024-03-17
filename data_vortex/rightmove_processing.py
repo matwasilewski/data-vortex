@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List
 
 from bs4 import BeautifulSoup
 from data_vortex.models import ListingInfo
@@ -9,21 +9,35 @@ def get_search_results(soup: BeautifulSoup) -> List[ListingInfo]:
     listings_result = []
 
     for listing in listings:
-        # Initialize a dictionary to store the extracted information
-        listing_info = {
-            'property_id': listing.get('id', '').split('-')[-1],
-            'image_urls': [img['src'] for img in listing.find_all('img') if 'src' in img.attrs],
-            'description': (
-                description.text.strip() if (description := listing.find('span', {'itemprop': 'description'})) else ''),
-            'price': (price.text.strip() if (price := listing.find('span', class_='propertyCard-priceValue')) else ''),
-            'added_date': (added_date.text.strip() if (
-                added_date := listing.find('span', class_='propertyCard-branchSummary-addedOrReduced')) else ''),
-            'phone_number': (phone_number.text.strip() if (
-                phone_number := listing.find('a', class_='propertyCard-contactsPhoneNumber')) else '')
-        }
+        # Extract the property ID
+        property_id = listing.get('id', '').split('-')[-1]
 
-        # Create a ListingInfo object from the dictionary
-        listing_model = ListingInfo(**listing_info)
+        # Extract the image URLs
+        image_urls = [img['src'] for img in listing.find_all('img') if 'src' in img.attrs]
 
-        # Append the ListingInfo object to the results list
-        listings_result.append(listing_model)
+        # Extract the description
+        description_elem = listing.find('span', {'itemprop': 'description'})
+        description = description_elem.text.strip() if description_elem else ''
+
+        # Extract the price
+        price_elem = listing.find('span', class_='propertyCard-priceValue')
+        price = price_elem.text.strip() if price_elem else ''
+
+        # Extract the added date
+        added_date_elem = listing.find('span', class_='propertyCard-branchSummary-addedOrReduced')
+        added_date = added_date_elem.text.strip() if added_date_elem else ''
+
+        # Extract the contact phone number
+        phone_number_elem = listing.find('a', class_='propertyCard-contactsPhoneNumber')
+        phone_number = phone_number_elem.text.strip() if phone_number_elem else ''
+
+        listing_info = ListingInfo(
+            property_id=property_id,
+            image_urls=image_urls,
+            description=description,
+            price=price,
+            added_date=added_date,
+            phone_number=phone_number
+        )
+        listings_result.append(listing_info)
+    return listings_result
