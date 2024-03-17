@@ -2,15 +2,19 @@ from typing import List
 
 from bs4 import BeautifulSoup
 from data_vortex.models import ListingInfo
+from data_vortex.utils.logging import log
 
 
-def get_search_results(soup: BeautifulSoup) -> List[ListingInfo]:
+def get_listings(soup: BeautifulSoup) -> List[ListingInfo]:
     listings = soup.find_all('div', class_='l-searchResult')
     listings_result = []
 
     for listing in listings:
-        # Extract the property ID
-        property_id = listing.get('id', '').split('-')[-1]
+        property_id = listing.get('id', None).split('-')[-1]
+
+        if property_id == '0' or property_id is None:
+            log.warn(f'Found empty property!')
+            continue
 
         # Extract the image URLs
         image_urls = [img['src'] for img in listing.find_all('img') if 'src' in img.attrs]
@@ -30,6 +34,7 @@ def get_search_results(soup: BeautifulSoup) -> List[ListingInfo]:
         # Extract the contact phone number
         phone_number_elem = listing.find('a', class_='propertyCard-contactsPhoneNumber')
         phone_number = phone_number_elem.text.strip() if phone_number_elem else ''
+
 
         listing_info = ListingInfo(
             property_id=property_id,
