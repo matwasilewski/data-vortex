@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Mapping
 
 from pydantic import (
     BaseModel,
@@ -66,6 +66,12 @@ class GenericListing(BaseModel):
             raise ValueError("Invalid date format")
         elif v.startswith("Added on "):
             date_str = v.replace("Added on ", "")
+        elif v.startswith("Reduced on "):
+            date_str = v.replace("Reduced on ", "")
+        elif v.startswith("Added today") or v.startswith("Reduced today"):
+            return datetime.date.today()
+        elif v.startswith("Added yesterday") or v.startswith("Reduced yesterday"):
+            return datetime.date.today() - datetime.timedelta(days=1)
         else:
             date_str = v
 
@@ -149,8 +155,19 @@ class RightmoveRentParams(BaseModel):
 
 
 class RequestData(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
     url: str
-    params: Dict[str, str]
-    headers: Dict[str, str]
+    params: Mapping[str, str]  # Use Mapping to enforce immutability
+    headers: Mapping[str, str]
+
+    class Config:
+        extra = "forbid"
+        frozen = True  # This makes the model instances immutable
+
+    def __hash__(self):
+        # Hash is based on a tuple of all the significant attributes
+        return hash((self.url, frozenset(self.params.items()), frozenset(self.headers.items())))
+
+    def __eq__(self, other):
+        if not isinstance(other, RequestData):
+            return NotImplemented
+        return (self.url, self.params, self.headers) == (other.url, other.params, other.headers)
