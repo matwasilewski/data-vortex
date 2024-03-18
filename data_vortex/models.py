@@ -2,7 +2,14 @@ import datetime
 from enum import Enum
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_validator,
+)
 
 
 class PriceUnit(Enum):
@@ -27,12 +34,13 @@ class Price(BaseModel):
 # noinspection PyNestedDecorators
 class GenericListing(BaseModel):
     model_config = ConfigDict(extra="forbid")
-
     property_id: str
     image_urls: List[HttpUrl]
     description: str
     price: Price
     added_date: datetime.date
+    address: Optional[str]
+    postcode: Optional[str]
     created_date: datetime.datetime = Field(
         default_factory=datetime.datetime.now
     )
@@ -96,6 +104,16 @@ class GenericListing(BaseModel):
 
         # Return a Price instance
         return Price(price=amount, currency=currency, per=per)
+
+    @model_validator(mode="after")
+    def check_address_and_postcode_match(self) -> "GenericListing":
+        if (
+            self.address is not None
+            and self.postcode is not None
+            and self.postcode not in self.address
+        ):
+            raise ValueError("Address must contain postcode!")
+        return self
 
 
 class RightmoveRentalListing(GenericListing):
