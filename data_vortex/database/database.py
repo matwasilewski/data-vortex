@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base  # Import the Base from models.py
+from data_vortex.database.models import Base
 
-DATABASE_URL = "sqlite:///listings.db"  # Or another database URL
+DATABASE_URL = "sqlite:///vortex.db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def init_db():
+
+def create_database():
     Base.metadata.create_all(bind=engine)

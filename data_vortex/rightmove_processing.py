@@ -39,6 +39,9 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
                 except ValidationError:
                     # If the URL is not valid, it will not be added to the list
                     pass
+        if len(image_urls) > 1:
+            log.warn(f"Found multiple images for property {property_id}")
+        image_url = image_urls[0] if image_urls else None
 
         # Extract the description
         description_elem = listing.find("span", {"itemprop": "description"})
@@ -69,7 +72,7 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
         try:
             listing_info = GenericListing(
                 property_id=property_id,
-                image_urls=image_urls,
+                image_url=image_url,
                 description=description,
                 price=price,
                 added_date=added_date,

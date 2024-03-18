@@ -35,7 +35,7 @@ class Price(BaseModel):
 class GenericListing(BaseModel):
     model_config = ConfigDict(extra="forbid")
     property_id: str
-    image_urls: List[HttpUrl]
+    image_url: Optional[HttpUrl]
     description: str
     price: Price
     added_date: datetime.date
@@ -85,10 +85,13 @@ class GenericListing(BaseModel):
     @field_validator("price", mode="before")
     @classmethod
     def parse_price(cls, v: str):
-        # Initialize variables
-        amount = 0
         currency = None
         per = None
+
+        if isinstance(v, Price):
+            return v
+        elif isinstance(v, dict):
+            return Price(**v)
 
         # Check for currency and remove it from the string
         for cur in Currency:
@@ -106,8 +109,10 @@ class GenericListing(BaseModel):
             v = v.replace("pw", "")
 
         # Remove any commas and convert to integer
-        amount = int(v.replace(",", ""))
-
+        try:
+            amount = int(v.replace(",", ""))
+        except:
+            pass
         # Return a Price instance
         return Price(price=amount, currency=currency, per=per)
 
