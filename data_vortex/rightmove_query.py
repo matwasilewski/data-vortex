@@ -2,7 +2,7 @@ from functools import lru_cache
 
 import requests
 
-from data_vortex.models import RequestData, RightmoveRentParams
+from data_vortex.rightmove_models import RequestData, RightmoveRentParams
 
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"

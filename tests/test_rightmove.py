@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from data_vortex.models import RightmoveRentParams
+from data_vortex.rightmove_models import RightmoveRentParams
 from data_vortex.rightmove_processing import (
     process_response, get_listings,
 )

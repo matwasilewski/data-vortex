@@ -5,7 +5,7 @@ import pytest
 from bs4 import BeautifulSoup
 from pydantic import HttpUrl
 
-from data_vortex.models import Currency, Price, PriceUnit
+from data_vortex.rightmove_models import Currency, Price, PriceUnit
 from data_vortex.rightmove_processing import get_listings
 
 

@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from pydantic import HttpUrl, ValidationError
 from requests import Response
 
-from data_vortex.models import GenericListing
+from data_vortex.rightmove_models import GenericListing
 from data_vortex.utils.logging import log
 
 
