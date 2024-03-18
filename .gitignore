@@ -9,3 +9,4 @@ __pycache__/*
 data_vortex/__pycache__/*
 data_vortex/utils/__pycache__/*
 tests/__pycache__/*
+/data_vortex/logs/*
