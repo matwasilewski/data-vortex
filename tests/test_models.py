@@ -34,12 +34,14 @@ def test_date_parsing(added_date: str) -> None:
         description="Lorem ipsum",
         price="£1,000 pcm",
         added_date=added_date,
+        postcode="N1 1AA",
+        address="123 Fake Street",
     )
     assert l_info.added_date == datetime.date(2024, 2, 10)
 
 
 @pytest.mark.parametrize(
-    "price, expected",
+    ("price", "expected"),
     [
         ("1000$", Price(price=1000, currency=Currency.USD, per=None)),
         ("$1000", Price(price=1000, currency=Currency.USD, per=None)),
@@ -66,14 +68,15 @@ def test_price_parsing_simple(price: str, expected: Price) -> None:
         description="Lorem ipsum",
         price=price,
         added_date="2024-02-10",
-        phone_number="123456789",
+        postcode="N1 1AA",
+        address="123 Fake Street",
     )
     assert l_info.price == expected
 
 
 @pytest.mark.skip()
 @pytest.mark.parametrize(
-    "price, expected",
+    ("price", "expected"),
     [
         ("1000USD", Price(price=1000, currency=Currency.USD, per=None)),
         (
