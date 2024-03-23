@@ -52,7 +52,7 @@ def test_date_parsing(added_date: str) -> None:
             Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_WEEK),
         ),
         ("1000£", Price(price=1000, currency=Currency.GBP, per=None)),
-        ("£100,000", Price(price=1000000, currency=Currency.GBP, per=None)),
+        ("£100,000", Price(price=100000, currency=Currency.GBP, per=None)),
         ("10000zl", Price(price=10000, currency=Currency.PLN, per=None)),
     ],
 )
