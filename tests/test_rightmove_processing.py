@@ -14,6 +14,11 @@ def rightmove_sample(test_resources_root: Path) -> BeautifulSoup:
     sample_path = test_resources_root / "rightmove_sampe.xml"
     return BeautifulSoup(sample_path.read_text(), "html.parser")
 
+@pytest.fixture()
+def rightmove_listing_sample(test_resources_root: Path) -> BeautifulSoup:
+    sample_path = test_resources_root / "rightmove_listing_145459589.xml"
+    return BeautifulSoup(sample_path.read_text(), "html.parser")
+
 
 def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
     listings = get_listings(rightmove_sample)
@@ -21,7 +26,7 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
     assert listings[0].property_id == "144595010"
     assert listings[0].image_url == HttpUrl(
         "https://media.rightmove.co.uk:443/dir/crop/10:9-16:9/260k/259202/144595010"
-        "/259202_THECI_005196_IMG_00_0000_max_476x317.jpeg"
+        "/259202_THECI_ 005196_IMG_00_0000_max_476x317.jpeg"
     )
     assert (
         listings[0].description
@@ -33,3 +38,12 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
         price=1127.0, currency=Currency.GBP, per=PriceUnit.PER_MONTH
     )
     assert listings[0].added_date == datetime.date(2024, 2, 10)
+
+
+
+def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
+    pass
+
+
+
+
