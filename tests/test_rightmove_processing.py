@@ -43,7 +43,7 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
 
 def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
     listing = get_detailed_listing(rightmove_listing_sample)
-    assert listing.property_id == 145459589
+    assert listing.property_id == "145459589"
 
 
 
