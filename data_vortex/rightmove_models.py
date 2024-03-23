@@ -35,7 +35,7 @@ class Price(BaseModel):
 class GenericListing(BaseModel):
     model_config = ConfigDict(extra="forbid")
     property_id: str
-    image_url: Optional[HttpUrl]
+    image_url: Optional[HttpUrl] = None
     description: str
     price: Price
     added_date: datetime.date
