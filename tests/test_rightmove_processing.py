@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from pydantic import HttpUrl
 
 from data_vortex.rightmove_models import Currency, Price, PriceUnit
-from data_vortex.rightmove_processing import get_listings
+from data_vortex.rightmove_processing import get_listings, get_detailed_listing
 
 
 @pytest.fixture()
@@ -42,8 +42,8 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
 
 
 def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
-    pass
-
+    listing = get_detailed_listing(rightmove_listing_sample)
+    assert listing.property_id == 145459589
 
 
 

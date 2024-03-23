@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from pydantic import HttpUrl, ValidationError
 from requests import Response
 
-from data_vortex.rightmove_models import GenericListing
+from data_vortex.rightmove_models import GenericListing, RightmoveRentalListing
 from data_vortex.utils.logging import log
 
 
@@ -87,6 +87,7 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
     return listings_result
 
 
-def get_detailed_listing(soup: BeautifulSoup) -> List[GenericListing]:
+def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     # TODO: this function parser individual listing soup into a detailed listing
+
     pass
