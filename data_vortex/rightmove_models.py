@@ -1,6 +1,6 @@
 import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Mapping
+from typing import Mapping, Optional
 
 from pydantic import (
     BaseModel,
@@ -70,7 +70,9 @@ class GenericListing(BaseModel):
             date_str = v.replace("Reduced on ", "")
         elif v.startswith("Added today") or v.startswith("Reduced today"):
             return datetime.date.today()
-        elif v.startswith("Added yesterday") or v.startswith("Reduced yesterday"):
+        elif v.startswith("Added yesterday") or v.startswith(
+            "Reduced yesterday"
+        ):
             return datetime.date.today() - datetime.timedelta(days=1)
         else:
             date_str = v
@@ -170,9 +172,19 @@ class RequestData(BaseModel):
 
     def __hash__(self):
         # Hash is based on a tuple of all the significant attributes
-        return hash((self.url, frozenset(self.params.items()), frozenset(self.headers.items())))
+        return hash(
+            (
+                self.url,
+                frozenset(self.params.items()),
+                frozenset(self.headers.items()),
+            )
+        )
 
     def __eq__(self, other):
         if not isinstance(other, RequestData):
             return NotImplemented
-        return (self.url, self.params, self.headers) == (other.url, other.params, other.headers)
+        return (self.url, self.params, self.headers) == (
+            other.url,
+            other.params,
+            other.headers,
+        )

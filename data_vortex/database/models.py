@@ -1,12 +1,13 @@
 import datetime
 
+from sqlalchemy import Column, Date, DateTime, Float, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Float, Date, DateTime
 
 Base = declarative_base()
 
+
 class DbListing(Base):
-    __tablename__ = 'rental_listings'
+    __tablename__ = "rental_listings"
     property_id = Column(String, primary_key=True)
     image_url = Column(String, nullable=True)
     description = Column(String)

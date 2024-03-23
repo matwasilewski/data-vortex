@@ -1,14 +1,16 @@
 from sqlite3 import IntegrityError
 
 from sqlalchemy.orm import Session
-import json
 
 from data_vortex.database.models import DbListing
-from data_vortex.rightmove_models import GenericListing
 
 
 def create_listing(db: Session, db_listing: DbListing):
-    existing_listing = db.query(DbListing).filter(DbListing.property_id == db_listing.property_id).first()
+    existing_listing = (
+        db.query(DbListing)
+        .filter(DbListing.property_id == db_listing.property_id)
+        .first()
+    )
     if existing_listing:
         # A listing with this property_id already exists
         # You can choose to update the existing record or just return it
@@ -34,4 +36,8 @@ def create_listing(db: Session, db_listing: DbListing):
 
 
 def get_listing(db: Session, property_id: str):
-    return db.query(DbListing).filter(DbListing.property_id == property_id).first()
+    return (
+        db.query(DbListing)
+        .filter(DbListing.property_id == property_id)
+        .first()
+    )

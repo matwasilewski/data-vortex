@@ -25,5 +25,3 @@ COPY . /app
 # run uvicorn
 CMD poetry show
 # FIXME: run CMD here...
-
-

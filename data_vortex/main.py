@@ -1,11 +1,10 @@
 from bs4 import BeautifulSoup
 
-from data_vortex.database.database import SessionLocal, create_database
 from data_vortex.database import crud
+from data_vortex.database.database import SessionLocal, create_database
 from data_vortex.database.models import DbListing
-from data_vortex.rightmove_models import GenericListing, RightmoveRentParams
-from data_vortex.rightmove_processing import process_response, get_listings
-from data_vortex.rightmove_query import search_rental_properties
+from data_vortex.rightmove_models import GenericListing
+from data_vortex.rightmove_processing import get_listings
 
 create_database()
 
@@ -31,7 +30,7 @@ def create_and_fetch_listing(listing_data: GenericListing) -> None:
         added_date=listing_data.added_date,
         address=listing_data.address,
         postcode=listing_data.postcode,
-        created_date=listing_data.created_date
+        created_date=listing_data.created_date,
     )
     listing = crud.create_listing(db, db_listing=db_listing)
     print(f"Created listing with ID: {listing.property_id}")
@@ -41,7 +40,9 @@ def create_and_fetch_listing(listing_data: GenericListing) -> None:
 
 
 if __name__ == "__main__":
-    with open("/Users/mwasilewski/Code/data-vortex/tests/resources/rightmove_full_rental_query.xml", "r") as f:
+    with open(
+        "/Users/mwasilewski/Code/data-vortex/tests/resources/rightmove_full_rental_query.xml"
+    ) as f:
         soup = BeautifulSoup(f.read(), "html.parser")
 
     listings = get_listings(soup)

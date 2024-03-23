@@ -62,7 +62,7 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
         ).find("span")
 
         address = address_span.text.strip()
-        pattern = r'[A-Z]{1,2}[0-9R][0-9A-Z]?(?: [0-9][A-Z]{2})?'
+        pattern = r"[A-Z]{1,2}[0-9R][0-9A-Z]?(?: [0-9][A-Z]{2})?"
         match = re.search(pattern, address)
 
         if match:
