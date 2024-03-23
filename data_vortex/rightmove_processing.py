@@ -85,3 +85,8 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
             continue
 
     return listings_result
+
+
+def get_detailed_listing(soup: BeautifulSoup) -> List[GenericListing]:
+    # TODO: this function parser individual listing soup into a detailed listing
+    pass
