@@ -105,8 +105,23 @@ def _get_listing_from_rightmove(
     return response
 
 
+def download_listing(listing_id: str) -> None:
+    response = get_listing_from_rightmove(int(listing_id))
+    if response.status_code != 200:
+        log.error(
+            f"Failed to download listing with ID {listing_id}. "
+            f"Received status code: {response.status_code}"
+        )
+        return
+
+    filename = Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
+    with open(filename, "wb") as f:
+        f.write(response.content)
+    log.info(f"Listing with ID {listing_id} downloaded to {filename}")
+
+
 def get_new_listings(
-    continue_search: bool = False, wait_time: float = 0
+    continue_search: bool = False, download_raw_listings: bool = False, wait_time: float = 0
 ) -> None:
     dir_path = Path(
         settings.DATA_DIR
@@ -147,6 +162,10 @@ def get_new_listings(
                 with open(filename, "w") as f:
                     json.dump(listing_json, f, indent=2)
                 log.info(f"New listing saved: {filename}")
+
+            if download_raw_listings:
+                download_listing(listing.property_id)
+                time.sleep(wait_time)
 
         log.info(
             f"Query outcome: {len(listings)} properties retrieved, {num_new_properties} new."
