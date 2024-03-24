@@ -144,6 +144,7 @@ class RightmoveRentParams(BaseModel):
     searchType: str = "RENT"  # noqa: N815
     locationIdentifier: str = "REGION^87490"  # noqa: N815
     insId: str = "1"  # noqa: N815
+    index: Optional[int] = None  # noqa: N815
     radius: str = "0.0"
     minPrice: str = ""  # noqa: N815
     maxPrice: str = ""  # noqa: N815
