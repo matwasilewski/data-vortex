@@ -162,10 +162,9 @@ class RightmoveRentParams(BaseModel):
     letFurnishType: str = ""  # noqa: N815
     houseFlatShare: str = ""  # noqa: N815
 
-
 class RequestData(BaseModel):
     url: str
-    _params: Mapping[str, str]
+    _params: Optional[Mapping[str, str]] = None  # Default params to None
     _headers: Mapping[str, str]
 
     class Config:
@@ -173,13 +172,15 @@ class RequestData(BaseModel):
 
     def __init__(__pydantic_self__, **data):
         super().__init__(**data)
-        # Convert params and headers to immutable types immediately upon initialization
+        # Convert headers to immutable type immediately upon initialization
         object.__setattr__(
-            __pydantic_self__, "_params", MappingProxyType(data["params"])
+            __pydantic_self__, "_headers", MappingProxyType(data.get("headers", {}))
         )
-        object.__setattr__(
-            __pydantic_self__, "_headers", MappingProxyType(data["headers"])
-        )
+        # Only convert params to immutable type if they are provided
+        if "params" in data and data["params"] is not None:
+            object.__setattr__(
+                __pydantic_self__, "_params", MappingProxyType(data["params"])
+            )
 
     @property
     def params(self):
@@ -190,11 +191,12 @@ class RequestData(BaseModel):
         return self._headers
 
     def __hash__(self):
-        # Ensure all parts of the hash are immutable
+        # Adjust hash to handle optional params
+        params_hash = frozenset(self.params.items()) if self.params else None
         return hash(
             (
                 self.url,
-                frozenset(self.params.items()),
+                params_hash,
                 frozenset(self.headers.items()),
             )
         )
