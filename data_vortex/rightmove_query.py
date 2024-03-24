@@ -107,11 +107,15 @@ def _get_listing_from_rightmove(
 
 
 def download_listing(listing_id: str) -> bool:
-    filename = Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
+    filename = (
+        Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
+    )
 
     # Check if the file already exists
     if filename.exists():
-        log.info(f"Listing with ID {listing_id} already exists. Skipping download.")
+        log.info(
+            f"Listing with ID {listing_id} already exists. Skipping download."
+        )
         return False
 
     response = get_listing_from_rightmove(int(listing_id))
@@ -176,9 +180,13 @@ def get_new_listings(
                 log.info(f"New listing saved: {filename}")
 
             if download_raw_listings:
-                log.info(f"Saving raw listing: {listing.property_id} to raw_data directory...")
+                log.info(
+                    f"Saving raw listing: {listing.property_id} to raw_data directory..."
+                )
                 if download_listing(listing.property_id):
-                    time.sleep(wait_time)  # Wait only if a new listing was downloaded
+                    time.sleep(
+                        wait_time
+                    )  # Wait only if a new listing was downloaded
 
         log.info(
             f"Query outcome: {len(listings)} properties retrieved, {num_new_properties} new."
