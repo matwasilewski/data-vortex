@@ -30,3 +30,28 @@ def test_full_run(mock_response) -> None:
     soup = process_response(respo)
     listings = get_listings(soup)
     assert len(listings) == 25
+
+
+@pytest.mark.skip(reason="Actual API calls sent via this test.")
+def test_unique_listings() -> None:
+    initial_response = search_rental_properties(rightmove_params=RightmoveRentParams())
+    initial_soup = process_response(initial_response)
+    initial_listings = get_listings(initial_soup)
+
+    second_params = RightmoveRentParams(index=24)
+    second_response = search_rental_properties(rightmove_params=second_params)
+    second_soup = process_response(second_response)
+    second_listings = get_listings(second_soup)
+
+    third_params = RightmoveRentParams(index=48)
+    third_response = search_rental_properties(rightmove_params=third_params)
+    third_soup = process_response(third_response)
+    third_listings = get_listings(third_soup)
+
+    assert len(initial_listings) == 25
+    assert len(second_listings) == 25
+    assert len(third_listings) == 25
+
+    all_listings = set(initial_listings + second_listings + third_listings)
+    assert len(all_listings) == len(initial_listings) + len(second_listings) + len(
+        third_listings), "There are duplicate listings across the responses."
