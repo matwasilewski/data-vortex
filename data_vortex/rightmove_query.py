@@ -23,21 +23,23 @@ def cache_with_ttl(fn):
     """
     Decorator that applies both caching and a TTL policy to a function.
     """
-    # Apply the lru_cache decorator to the function
     cached_fn = lru_cache(maxsize=None)(fn)
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        # Use the current time to check if the cache entry is expired
         now = time.time()
 
+        # Create a hashable key from args and kwargs
+        # Convert kwargs to a sorted tuple of key-value pairs for hashability
+        key = (args, tuple(sorted(kwargs.items())))
+
         # Check if we have a cached result and if it is still valid
-        if (args, kwargs) in cache and cache[(args, kwargs)][1] > now:
-            return cache[(args, kwargs)][0]
+        if key in cache and cache[key][1] > now:
+            return cache[key][0]
 
         # Call the function and cache the result along with the current time
         result = cached_fn(*args, **kwargs)
-        cache[(args, kwargs)] = (result, now + 3600)  # Cache result with a new expiry time
+        cache[key] = (result, now + 3600)  # Cache result with a new expiry time
 
         return result
 
