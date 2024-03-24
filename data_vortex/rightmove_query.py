@@ -10,9 +10,7 @@ from data_vortex.utils.config import settings
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"
 )
-RIGHTMOVE_BASE_RENT_ID = (
-    "https://www.rightmove.co.uk/properties"
-)
+RIGHTMOVE_BASE_RENT_ID = "https://www.rightmove.co.uk/properties"
 
 RIGHTMOVE_HEADER = {
     "User-Agent": "curl/7.64.1",  # Example User-Agent header from curl
@@ -22,7 +20,9 @@ RIGHTMOVE_HEADER = {
 cache = TTLCache(maxsize=1000, ttl=3600)
 
 
-def cache_with_ttl(expiration_hours=1):  # Default expiration time set to 1 hour
+def cache_with_ttl(
+    expiration_hours=1,
+):  # Default expiration time set to 1 hour
     def decorator(fn):
         cached_fn = lru_cache(maxsize=None)(fn)
 
@@ -30,9 +30,13 @@ def cache_with_ttl(expiration_hours=1):  # Default expiration time set to 1 hour
         def wrapper(*args, **kwargs):
             use_cache = kwargs.pop("use_cache", False)
 
-            if settings.USE_CACHE_FOR_SEARCH and use_cache:  # Check if caching is enabled and requested
+            if (
+                settings.USE_CACHE_FOR_SEARCH and use_cache
+            ):  # Check if caching is enabled and requested
                 now = time.time()
-                ttl_seconds = expiration_hours * 3600  # Convert hours to seconds
+                ttl_seconds = (
+                    expiration_hours * 3600
+                )  # Convert hours to seconds
 
                 # Create a hashable key from args and kwargs
                 key = (args, tuple(sorted(kwargs.items())))
@@ -43,7 +47,10 @@ def cache_with_ttl(expiration_hours=1):  # Default expiration time set to 1 hour
 
                 # Call the function and cache the result along with the current time and TTL
                 result = cached_fn(*args, **kwargs)
-                cache[key] = (result, now + ttl_seconds)  # Cache result with the new expiry time
+                cache[key] = (
+                    result,
+                    now + ttl_seconds,
+                )  # Cache result with the new expiry time
 
                 return result
             else:
@@ -56,7 +63,7 @@ def cache_with_ttl(expiration_hours=1):  # Default expiration time set to 1 hour
 
 
 def search_rental_properties(
-        rightmove_params: RightmoveRentParams,
+    rightmove_params: RightmoveRentParams,
 ) -> requests.Response:
     request_data = RequestData(
         url=RIGHTMOVE_RENT_SEARCH_URL,
@@ -85,7 +92,9 @@ def get_listing_from_rightmove(
 
 
 @cache_with_ttl(expiration_hours=24)
-def _get_listing_from_rightmove(request_data: RequestData) -> requests.Response:
+def _get_listing_from_rightmove(
+    request_data: RequestData,
+) -> requests.Response:
     response = requests.get(
         request_data.url, params=request_data.params, headers=RIGHTMOVE_HEADER
     )
