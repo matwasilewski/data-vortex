@@ -62,7 +62,7 @@ class Settings(BaseSettings):
 
     SYSLOG_ADDR: Optional[Path] = None
 
-    DATABASE_URL = "sqlite:///vortex.db"
+    DATABASE_URL: str = "sqlite:///vortex.db"
 
     class Config:
         env_file = ".env"
