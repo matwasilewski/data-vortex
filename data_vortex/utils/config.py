@@ -62,6 +62,8 @@ class Settings(BaseSettings):
 
     SYSLOG_ADDR: Optional[Path] = None
 
+    DATABASE_URL = "sqlite:///vortex.db"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
