@@ -105,7 +105,9 @@ def _get_listing_from_rightmove(
     return response
 
 
-def get_new_listings(continue_search: bool = False) -> None:
+def get_new_listings(
+    continue_search: bool = False, wait_time: float = 0
+) -> None:
     dir_path = Path(
         settings.DATA_DIR
     )  # Ensure the path is a Path object for easier manipulation
@@ -155,3 +157,4 @@ def get_new_listings(continue_search: bool = False) -> None:
             break
 
         index += 24  # Increment index for the next batch of listings
+        time.sleep(wait_time)
