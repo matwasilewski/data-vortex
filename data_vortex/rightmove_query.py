@@ -10,9 +10,12 @@ from data_vortex.utils.config import settings
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"
 )
+RIGHTMOVE_BASE_RENT_ID = (
+    "https://www.rightmove.co.uk/properties"
+)
+
 RIGHTMOVE_HEADER = {
     "User-Agent": "curl/7.64.1",  # Example User-Agent header from curl
-    # Add other headers observed from the curl command
 }
 
 # Define the cache with a maximum size of 100 items and items expire after 3600 seconds (1 hour)
@@ -48,11 +51,12 @@ def cache_with_ttl(expiration_hours=1):  # Default expiration time set to 1 hour
                 return fn(*args, **kwargs)
 
         return wrapper
+
     return decorator
 
 
 def search_rental_properties(
-    rightmove_params: RightmoveRentParams,
+        rightmove_params: RightmoveRentParams,
 ) -> requests.Response:
     request_data = RequestData(
         url=RIGHTMOVE_RENT_SEARCH_URL,
@@ -70,12 +74,19 @@ def _search_rightmove(request_data: RequestData) -> requests.Response:
     return response
 
 
+def get_listing_from_rightmove(
+    listing_id: int,
+) -> requests.Response:
+    request_data = RequestData(
+        url=f"{RIGHTMOVE_BASE_RENT_ID}/{listing_id}",
+        headers=RIGHTMOVE_HEADER,
+    )
+    return _get_listing_from_rightmove(request_data)
 
 
 @cache_with_ttl(expiration_hours=24)
-def _search_rightmove(request_data: RequestData) -> requests.Response:
+def _get_listing_from_rightmove(request_data: RequestData) -> requests.Response:
     response = requests.get(
         request_data.url, params=request_data.params, headers=RIGHTMOVE_HEADER
     )
     return response
-
