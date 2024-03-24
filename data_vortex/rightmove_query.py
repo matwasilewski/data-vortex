@@ -9,6 +9,7 @@ from cachetools import TTLCache
 from data_vortex.rightmove_models import RequestData, RightmoveRentParams
 from data_vortex.rightmove_processing import get_listings, process_response
 from data_vortex.utils.config import settings
+from data_vortex.utils.logging import log
 
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"
@@ -104,27 +105,29 @@ def _get_listing_from_rightmove(
     return response
 
 
-def get_new_listings() -> None:
+def get_new_listings(continue_search: bool = False) -> None:
     dir_path = Path(
         settings.DATA_DIR
     )  # Ensure the path is a Path object for easier manipulation
     index = 0  # Start index
 
     while True:
+        log.info(f"Sending new query with index: {index}")
         response = search_rental_properties(
             rightmove_params=RightmoveRentParams(index=index)
         )
 
         # Check for non-200 response and handle it
         if response.status_code != 200:
-            print(f"Received non-200 response: {response.status_code}")
+            log.error(f"Received non-200 response: {response.status_code}")
             break  # or handle it differently based on your requirements
 
         soup = process_response(response)
         listings = get_listings(soup)
+        num_new_properties = 0  # Counter for new properties
 
         if not listings:
-            print("No more listings retrieved, stopping...")
+            log.info("No more listings retrieved, stopping...")
             break
 
         all_files_exist = True
@@ -134,14 +137,21 @@ def get_new_listings() -> None:
             # Check if file already exists
             if not filename.exists():
                 all_files_exist = False
-                # Assuming `model_dump_json` is a method that returns the JSON representation of the model
-                listing_json = listing.model_dump_json(indent=2)
+                num_new_properties += 1
+                listing_json = listing.model_dump_json(
+                    indent=2
+                )  # Assuming this method returns the JSON representation
                 # Save the JSON to a file
                 with open(filename, "w") as f:
                     json.dump(listing_json, f, indent=2)
+                log.info(f"New listing saved: {filename}")
 
-        if all_files_exist:
-            print("All listings already have files, stopping...")
+        log.info(
+            f"Query outcome: {len(listings)} properties retrieved, {num_new_properties} new."
+        )
+
+        if all_files_exist and not continue_search:
+            log.info("All listings already have files, stopping...")
             break
 
         index += 24  # Increment index for the next batch of listings
