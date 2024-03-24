@@ -1,6 +1,7 @@
 import datetime
 from enum import Enum
 from typing import Mapping, Optional
+from types import MappingProxyType
 
 from pydantic import (
     BaseModel,
@@ -163,28 +164,31 @@ class RightmoveRentParams(BaseModel):
 
 class RequestData(BaseModel):
     url: str
-    params: Mapping[str, str]  # Use Mapping to enforce immutability
-    headers: Mapping[str, str]
+    _params: Mapping[str, str]
+    _headers: Mapping[str, str]
 
     class Config:
-        extra = "forbid"
-        frozen = True  # This makes the model instances immutable
+        frozen = True
+
+    def __init__(__pydantic_self__, **data):
+        super().__init__(**data)
+        # Convert params and headers to immutable types immediately upon initialization
+        object.__setattr__(__pydantic_self__, '_params', MappingProxyType(data['params']))
+        object.__setattr__(__pydantic_self__, '_headers', MappingProxyType(data['headers']))
+
+    @property
+    def params(self):
+        return self._params
+
+    @property
+    def headers(self):
+        return self._headers
 
     def __hash__(self):
-        # Hash is based on a tuple of all the significant attributes
-        return hash(
-            (
-                self.url,
-                frozenset(self.params.items()),
-                frozenset(self.headers.items()),
-            )
-        )
+        # Ensure all parts of the hash are immutable
+        return hash((self.url, frozenset(self.params.items()), frozenset(self.headers.items())))
 
     def __eq__(self, other):
         if not isinstance(other, RequestData):
             return NotImplemented
-        return (self.url, self.params, self.headers) == (
-            other.url,
-            other.params,
-            other.headers,
-        )
+        return (self.url, self.params, self.headers) == (other.url, other.params, other.headers)
