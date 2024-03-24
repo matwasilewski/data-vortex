@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
-from typing import Mapping, Optional
 from types import MappingProxyType
+from typing import Mapping, Optional
 
 from pydantic import (
     BaseModel,
@@ -173,8 +173,12 @@ class RequestData(BaseModel):
     def __init__(__pydantic_self__, **data):
         super().__init__(**data)
         # Convert params and headers to immutable types immediately upon initialization
-        object.__setattr__(__pydantic_self__, '_params', MappingProxyType(data['params']))
-        object.__setattr__(__pydantic_self__, '_headers', MappingProxyType(data['headers']))
+        object.__setattr__(
+            __pydantic_self__, "_params", MappingProxyType(data["params"])
+        )
+        object.__setattr__(
+            __pydantic_self__, "_headers", MappingProxyType(data["headers"])
+        )
 
     @property
     def params(self):
@@ -186,9 +190,19 @@ class RequestData(BaseModel):
 
     def __hash__(self):
         # Ensure all parts of the hash are immutable
-        return hash((self.url, frozenset(self.params.items()), frozenset(self.headers.items())))
+        return hash(
+            (
+                self.url,
+                frozenset(self.params.items()),
+                frozenset(self.headers.items()),
+            )
+        )
 
     def __eq__(self, other):
         if not isinstance(other, RequestData):
             return NotImplemented
-        return (self.url, self.params, self.headers) == (other.url, other.params, other.headers)
+        return (self.url, self.params, self.headers) == (
+            other.url,
+            other.params,
+            other.headers,
+        )

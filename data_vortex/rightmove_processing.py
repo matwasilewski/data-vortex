@@ -90,12 +90,12 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
 def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     # TODO: this function parser individual listing soup into a detailed listing
     # Find meta tag with property='og:url'
-    meta_tag = soup.find('meta', property='og:url')
+    meta_tag = soup.find("meta", property="og:url")
 
     # Extract URL from content attribute
-    property_url = meta_tag['content']
+    property_url = meta_tag["content"]
 
-    property_id_match = re.search(r'/properties/(\d+)', property_url)
+    property_id_match = re.search(r"/properties/(\d+)", property_url)
 
     if property_id_match:
         property_id = property_id_match.group(1)

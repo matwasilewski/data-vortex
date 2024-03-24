@@ -1,9 +1,8 @@
-from functools import lru_cache
+import time
+from functools import lru_cache, wraps
 
 import requests
 from cachetools import TTLCache
-from functools import lru_cache, wraps
-import time
 
 from data_vortex.rightmove_models import RequestData, RightmoveRentParams
 from data_vortex.utils.config import settings
@@ -28,7 +27,7 @@ def cache_with_ttl(fn):
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        use_cache = kwargs.pop('use_cache', False)
+        use_cache = kwargs.pop("use_cache", False)
 
         if settings.USE_CACHE_FOR_SEARCH:
             now = time.time()
@@ -42,7 +41,10 @@ def cache_with_ttl(fn):
 
             # Call the function and cache the result along with the current time
             result = cached_fn(*args, **kwargs)
-            cache[key] = (result, now + 3600)  # Cache result with a new expiry time
+            cache[key] = (
+                result,
+                now + 3600,
+            )  # Cache result with a new expiry time
 
             return result
         else:
@@ -53,7 +55,7 @@ def cache_with_ttl(fn):
 
 
 def search_rental_properties(
-        rightmove_params: RightmoveRentParams,
+    rightmove_params: RightmoveRentParams,
 ) -> requests.Response:
     request_data = RequestData(
         url=RIGHTMOVE_RENT_SEARCH_URL,
