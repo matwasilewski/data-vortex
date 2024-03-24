@@ -6,13 +6,14 @@ from bs4 import BeautifulSoup
 from pydantic import HttpUrl
 
 from data_vortex.rightmove_models import Currency, Price, PriceUnit
-from data_vortex.rightmove_processing import get_listings, get_detailed_listing
+from data_vortex.rightmove_processing import get_detailed_listing, get_listings
 
 
 @pytest.fixture()
 def rightmove_sample(test_resources_root: Path) -> BeautifulSoup:
     sample_path = test_resources_root / "rightmove_sampe.xml"
     return BeautifulSoup(sample_path.read_text(), "html.parser")
+
 
 @pytest.fixture()
 def rightmove_listing_sample(test_resources_root: Path) -> BeautifulSoup:
@@ -25,8 +26,7 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
     assert len(listings) == 1
     assert listings[0].property_id == "144595010"
     assert listings[0].image_url == HttpUrl(
-        "https://media.rightmove.co.uk:443/dir/crop/10:9-16:9/260k/259202/144595010"
-        "/259202_THECI_ 005196_IMG_00_0000_max_476x317.jpeg"
+        "https://media.rightmove.co.uk:443/dir/crop/10:9-16:9/260k/259202/144595010/259202_THECI_005196_IMG_00_0000_max_476x317.jpeg"
     )
     assert (
         listings[0].description
@@ -40,10 +40,6 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
     assert listings[0].added_date == datetime.date(2024, 2, 10)
 
 
-
 def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
     listing = get_detailed_listing(rightmove_listing_sample)
     assert listing.property_id == "145459589"
-
-
-
