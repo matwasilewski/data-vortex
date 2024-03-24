@@ -66,6 +66,7 @@ class Settings(BaseSettings):
 
     USE_CACHE_FOR_SEARCH: bool = True
     DATA_DIR: Path = Path("data")
+    RAW_LISTING_DIR: Path = Path("raw_data")
 
     class Config:
         env_file = ".env"
