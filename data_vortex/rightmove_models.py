@@ -162,6 +162,9 @@ class RightmoveRentParams(BaseModel):
     letFurnishType: str = ""  # noqa: N815
     houseFlatShare: str = ""  # noqa: N815
 
+    class Config:
+        extra = "forbid"
+
 
 class RequestData(BaseModel):
     url: str
