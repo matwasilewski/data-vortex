@@ -162,6 +162,7 @@ class RightmoveRentParams(BaseModel):
     letFurnishType: str = ""  # noqa: N815
     houseFlatShare: str = ""  # noqa: N815
 
+
 class RequestData(BaseModel):
     url: str
     _params: Optional[Mapping[str, str]] = None  # Default params to None
@@ -174,7 +175,9 @@ class RequestData(BaseModel):
         super().__init__(**data)
         # Convert headers to immutable type immediately upon initialization
         object.__setattr__(
-            __pydantic_self__, "_headers", MappingProxyType(data.get("headers", {}))
+            __pydantic_self__,
+            "_headers",
+            MappingProxyType(data.get("headers", {})),
         )
         # Only convert params to immutable type if they are provided
         if "params" in data and data["params"] is not None:
