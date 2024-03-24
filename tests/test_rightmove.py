@@ -10,7 +10,10 @@ from data_vortex.rightmove_processing import (
     get_listings,
     process_response,
 )
-from data_vortex.rightmove_query import search_rental_properties
+from data_vortex.rightmove_query import (
+    get_listing_from_rightmove,
+    search_rental_properties,
+)
 
 
 @pytest.fixture()
@@ -34,7 +37,9 @@ def test_full_run(mock_response) -> None:
 
 @pytest.mark.skip(reason="Actual API calls sent via this test.")
 def test_unique_listings() -> None:
-    initial_response = search_rental_properties(rightmove_params=RightmoveRentParams())
+    initial_response = search_rental_properties(
+        rightmove_params=RightmoveRentParams()
+    )
     initial_soup = process_response(initial_response)
     initial_listings = get_listings(initial_soup)
 
@@ -53,5 +58,16 @@ def test_unique_listings() -> None:
     assert len(third_listings) == 25
 
     all_listings = set(initial_listings + second_listings + third_listings)
-    assert len(all_listings) == len(initial_listings) + len(second_listings) + len(
-        third_listings), "There are duplicate listings across the responses."
+    assert len(all_listings) == len(initial_listings) + len(
+        second_listings
+    ) + len(
+        third_listings
+    ), "There are duplicate listings across the responses."
+
+
+@pytest.mark.skip(reason="Actual API calls sent via this test.")
+def test_retrieve_property() -> None:
+    individual_listing = get_listing_from_rightmove(
+        listing_id=145826393,
+    )
+    assert individual_listing.status_code == 200
