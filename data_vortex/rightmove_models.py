@@ -115,7 +115,9 @@ class GenericListing(BaseModel):
         try:
             amount = int(v.replace(",", ""))
         except:
-            pass
+            raise ValueError(
+                f"Listing must have a price! Raw price found: {v}"
+            )
         # Return a Price instance
         return Price(price=amount, currency=currency, per=per)
 
