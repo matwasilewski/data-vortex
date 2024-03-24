@@ -64,6 +64,8 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str = "sqlite:///vortex.db"
 
+    USE_CACHE_FOR_SEARCH: bool = True
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

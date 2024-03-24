@@ -6,6 +6,7 @@ from functools import lru_cache, wraps
 import time
 
 from data_vortex.rightmove_models import RequestData, RightmoveRentParams
+from data_vortex.utils.config import settings
 
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"
@@ -21,27 +22,32 @@ cache = TTLCache(maxsize=100, ttl=3600)
 
 def cache_with_ttl(fn):
     """
-    Decorator that applies both caching and a TTL policy to a function.
+    Decorator that applies both caching and a TTL policy to a function, with an optional caching feature.
     """
     cached_fn = lru_cache(maxsize=None)(fn)
 
     @wraps(fn)
     def wrapper(*args, **kwargs):
-        now = time.time()
+        use_cache = kwargs.pop('use_cache', False)
 
-        # Create a hashable key from args and kwargs
-        # Convert kwargs to a sorted tuple of key-value pairs for hashability
-        key = (args, tuple(sorted(kwargs.items())))
+        if settings.USE_CACHE_FOR_SEARCH:
+            now = time.time()
 
-        # Check if we have a cached result and if it is still valid
-        if key in cache and cache[key][1] > now:
-            return cache[key][0]
+            # Create a hashable key from args and kwargs
+            key = (args, tuple(sorted(kwargs.items())))
 
-        # Call the function and cache the result along with the current time
-        result = cached_fn(*args, **kwargs)
-        cache[key] = (result, now + 3600)  # Cache result with a new expiry time
+            # Check if we have a cached result and if it is still valid
+            if key in cache and cache[key][1] > now:
+                return cache[key][0]
 
-        return result
+            # Call the function and cache the result along with the current time
+            result = cached_fn(*args, **kwargs)
+            cache[key] = (result, now + 3600)  # Cache result with a new expiry time
+
+            return result
+        else:
+            # If caching is not used, call the function directly without caching
+            return fn(*args, **kwargs)
 
     return wrapper
 
