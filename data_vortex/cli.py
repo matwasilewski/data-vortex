@@ -73,19 +73,24 @@ def get_new_properties(
     )
 
     for beds, price in product(bed_range, price_range):
+        min_bedrooms = str(beds) if beds is not None else None
+        max_bedrooms = min_bedrooms  # Assuming you want min and max bedrooms to be the same
+        min_price = str(price) if price is not None else None
+        max_price_str = str(price + price_increment - 1) if price is not None else str(max_price)
+
         params = RightmoveRentParams(
-            include_shared_accommodation="false",
-            minimum_bedrooms=str(beds) if beds is not None else None,
-            maximum_bedrooms=str(max_bed) if beds is not None else None,
-            minimum_price=str(price) if price is not None else None,
-            maximum_price=str(price + price_increment - 1)
-            if price is not None
-            else str(max_price),
+            minBedrooms=min_bedrooms,
+            maxBedrooms=max_bedrooms,
+            minPrice=min_price,
+            maxPrice=max_price_str,
         )
-        click.echo(
-            f"Fetching listings for {beds if beds is not None else 'any'} bedrooms and price range £{price if price is not None else '0'} - £{price + price_increment - 1 if price is not None else max_price if max_price is not None else 'any'}"
-        )
+
+        bedrooms_display = f"{beds if beds is not None else 'any'} bedrooms"
+        price_range_display = f"£{price if price is not None else '0'} - £{max_price_str if price is not None else max_price if max_price is not None else 'any'}"
+
+        click.echo(f"Fetching listings for {bedrooms_display} and price range {price_range_display}")
         click.echo(f"Params: {params.dict()}")
+
         get_new_listings(
             baseline_params=params,
             continue_search=continue_search,
