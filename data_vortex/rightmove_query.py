@@ -1,3 +1,4 @@
+import copy
 import json
 import time
 from functools import lru_cache, wraps
@@ -114,14 +115,19 @@ def download_listing(listing_id: str) -> None:
         )
         return
 
-    filename = Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
+    filename = (
+        Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
+    )
     with open(filename, "wb") as f:
         f.write(response.content)
     log.info(f"Listing with ID {listing_id} downloaded to {filename}")
 
 
 def get_new_listings(
-    continue_search: bool = False, download_raw_listings: bool = False, wait_time: float = 0
+    baseline_params: RightmoveRentParams,
+    continue_search: bool = False,
+    download_raw_listings: bool = False,
+    wait_time: float = 0,
 ) -> None:
     dir_path = Path(
         settings.DATA_DIR
@@ -129,10 +135,11 @@ def get_new_listings(
     index = 0  # Start index
 
     while True:
+        params = copy.deepcopy(baseline_params)
+        params.index = index
+        log.info(f"Starting new download with params: {params.dict()}")
         log.info(f"Sending new query with index: {index}")
-        response = search_rental_properties(
-            rightmove_params=RightmoveRentParams(index=index)
-        )
+        response = search_rental_properties(rightmove_params=params)
 
         # Check for non-200 response and handle it
         if response.status_code != 200:
@@ -164,6 +171,9 @@ def get_new_listings(
                 log.info(f"New listing saved: {filename}")
 
             if download_raw_listings:
+                log.info(
+                    f"Saving raw listing: {listing.property_id} to raw_data directory..."
+                )
                 download_listing(listing.property_id)
                 time.sleep(wait_time)
 
