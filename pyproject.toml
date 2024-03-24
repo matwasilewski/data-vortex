@@ -24,6 +24,7 @@ ujson = "^5.9.0"
 json-log-formatter = "^1.0"
 sqlalchemy = "^2.0.28"
 sqlalchemy-stubs = "^0.4"
+cachetools = "^5.3.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "6.2.5"
