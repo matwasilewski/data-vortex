@@ -57,7 +57,7 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
         )
         added_date = added_date_elem.text.strip() if added_date_elem else ""
 
-        address_span = soup.find(
+        address_span = listing.find(
             "address", class_="propertyCard-address"
         ).find("span")
 
