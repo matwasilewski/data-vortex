@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///vortex.db"
 
     USE_CACHE_FOR_SEARCH: bool = True
+    DATA_DIR: Path = Path("data")
 
     class Config:
         env_file = ".env"
