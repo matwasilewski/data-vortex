@@ -13,3 +13,4 @@ tests/__pycache__/*
 /logs/*
 vortex.db
 /notebooks/.ipynb_checkpoints/rightmove-checkpoint.ipynb
+data/*
