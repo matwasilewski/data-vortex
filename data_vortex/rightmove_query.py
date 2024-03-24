@@ -106,21 +106,26 @@ def _get_listing_from_rightmove(
     return response
 
 
-def download_listing(listing_id: str) -> None:
+def download_listing(listing_id: str) -> bool:
+    filename = Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
+
+    # Check if the file already exists
+    if filename.exists():
+        log.info(f"Listing with ID {listing_id} already exists. Skipping download.")
+        return False
+
     response = get_listing_from_rightmove(int(listing_id))
     if response.status_code != 200:
         log.error(
             f"Failed to download listing with ID {listing_id}. "
             f"Received status code: {response.status_code}"
         )
-        return
+        return False
 
-    filename = (
-        Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
-    )
     with open(filename, "wb") as f:
         f.write(response.content)
     log.info(f"Listing with ID {listing_id} downloaded to {filename}")
+    return True
 
 
 def get_new_listings(
@@ -171,11 +176,9 @@ def get_new_listings(
                 log.info(f"New listing saved: {filename}")
 
             if download_raw_listings:
-                log.info(
-                    f"Saving raw listing: {listing.property_id} to raw_data directory..."
-                )
-                download_listing(listing.property_id)
-                time.sleep(wait_time)
+                log.info(f"Saving raw listing: {listing.property_id} to raw_data directory...")
+                if download_listing(listing.property_id):
+                    time.sleep(wait_time)  # Wait only if a new listing was downloaded
 
         log.info(
             f"Query outcome: {len(listings)} properties retrieved, {num_new_properties} new."
