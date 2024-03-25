@@ -1,0 +1,4 @@
+# workspace.yaml
+
+load_from:
+  - python_file: src/data_vortex/__init__.py
