@@ -15,3 +15,4 @@ vortex.db
 /notebooks/.ipynb_checkpoints/rightmove-checkpoint.ipynb
 data/*
 raw_data/*
+src/data_vortex/database/__pycache__/*
