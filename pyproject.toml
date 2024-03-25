@@ -4,15 +4,15 @@ version = "0.1.0"
 authors = ["0.1.0 <mat.p.wasilewski@gmail.com>"]
 description = ""
 packages = [
-    { include = "data_vortex" },
-    { include = "data_vortex/**/*.py" },
+    { include = "data_vortex", from = "src"},
+    { include = "dagster", from = "src"},
 ]
 
 [tool.poetry.scripts]
-data_vortex = "data_vortex.cli:cli"
+data_vortex = "src.data_vortex.cli:cli"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9, <3.13"
 tomlkit = "^0.12.3"
 jupyter = "^1.0.0"
 jupyter-server = "^2.13.0"
@@ -29,6 +29,7 @@ sqlalchemy = "^2.0.28"
 sqlalchemy-stubs = "^0.4"
 cachetools = "^5.3.3"
 click = "^8.1.7"
+dagster = "^1.6.13"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "6.2.5"
