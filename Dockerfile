@@ -1,27 +1,23 @@
 FROM python:3.9-slim
 
-# copy requirements files
-WORKDIR /app
-COPY ./pyproject.toml ./poetry.lock /app/
+RUN mkdir -p /opt/dagster/app /opt/dagster/app/data
 
-# generate requirements.txt using poetry
-RUN pip install --upgrade pip
-RUN pip install poetry
-RUN poetry export -f requirements.txt --output requirements.txt
+COPY workspace.yaml pyproject.toml .python-version Makefile dagster.yaml /opt/dagster/app/
+COPY src /opt/dagster/app/src
+COPY .env_docker /opt/dagster/app/.env
 
-# set up service account
-RUN useradd -ms /bin/bash service
-USER service
+WORKDIR /opt/dagster/app
 
-# allow the package repo URL to be passed in as an arg
-ARG PACKAGE_REPO_URL
+ENV PYTHONPATH=${PYTHONPATH}:${PWD}
+ENV PYTHONUNBUFFERED True
 
-# install requirements
-RUN pip install -r requirements.txt --extra-index-url $PACKAGE_REPO_URL
+RUN apt-get update && apt-get install -y make && apt-get install -y git && apt-get install -y curl
 
-# copy the rest of the source code
-COPY . /app
+RUN pip3 install poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root --only main
+RUN poetry install --with dev
 
-# run uvicorn
-CMD poetry show
-# FIXME: run CMD here...
+EXPOSE 3000
+
+CMD ["poetry", "run", "dagster", "dev", "-h", "0.0.0.0"]
