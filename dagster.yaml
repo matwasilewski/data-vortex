@@ -1,0 +1,26 @@
+scheduler:
+  module: dagster.core.scheduler
+  class: DagsterDaemonScheduler
+run_coordinator:
+  module: dagster.core.run_coordinator
+  class: QueuedRunCoordinator
+  config:
+    max_concurrent_runs: 1
+    tag_concurrency_limits:
+      - key: "dagster/lightweight"
+        limit: 10
+storage:
+  sqlite:
+    base_dir: local_dagster/
+compute_logs:
+  module: dagster.core.storage.local_compute_log_manager
+  class: LocalComputeLogManager
+  config:
+    base_dir: local_dagster/
+local_artifact_storage:
+  module: dagster.core.storage.root
+  class: LocalArtifactStorage
+  config:
+    base_dir: local_dagster/data/
+telemetry:
+  enabled: false
