@@ -74,7 +74,14 @@ def get_new_properties(
 
     for beds, price in product(bed_range, price_range):
         min_bedrooms = str(beds) if beds is not None else None
-        max_bedrooms = min_bedrooms  # Assuming you want min and max bedrooms to be the same
+        max_bedrooms = min_bedrooms
+
+        if price is not None:
+            if price >= 10000:
+                price += 5 * price_increment
+            elif price >= 5000:
+                price += 2 * price_increment
+
         min_price = str(price) if price is not None else None
         max_price_str = str(price + price_increment - 1) if price is not None else str(max_price)
 
@@ -88,7 +95,9 @@ def get_new_properties(
         bedrooms_display = f"{beds if beds is not None else 'any'} bedrooms"
         price_range_display = f"£{price if price is not None else '0'} - £{max_price_str if price is not None else max_price if max_price is not None else 'any'}"
 
-        click.echo(f"Fetching listings for {bedrooms_display} and price range {price_range_display}")
+        click.echo(
+            f"Fetching listings for {bedrooms_display} and price range {price_range_display}"
+        )
         click.echo(f"Params: {params.dict()}")
 
         get_new_listings(
