@@ -6,10 +6,10 @@ tests/.coverage
 /tests/logs/*
 __pycache__/*
 .DS_Store
-data_vortex/__pycache__/*
-data_vortex/utils/__pycache__/*
+src/data_vortex/__pycache__/*
+src/data_vortex/utils/__pycache__/*
 tests/__pycache__/*
-/data_vortex/logs/*
+src/data_vortex/logs/*
 /logs/*
 vortex.db
 /notebooks/.ipynb_checkpoints/rightmove-checkpoint.ipynb
