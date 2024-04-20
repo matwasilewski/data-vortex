@@ -94,3 +94,7 @@ unit-coverage: $(VENV_ACTIVATE)
 gcp-authenticate:
 	gcloud auth application-default login
 	gcloud auth login
+
+## dagster-start: Start the dagsetr deployment environment
+dagster-start: $(VENV_ACTIVATE)
+	$(POETRY) run dagster dev

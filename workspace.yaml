@@ -1,4 +1,4 @@
 # workspace.yaml
 
 load_from:
-  - python_file: src/data_vortex/__init__.py
+  - python_file: src/data_vortex_dagster/__init__.py
