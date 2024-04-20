@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 
-from data_vortex.database import crud
-from data_vortex.database.database import SessionLocal, create_database
-from data_vortex.database.models import DbListing
-from data_vortex.rightmove_models import GenericListing
-from data_vortex.rightmove_processing import get_listings
+from src.data_vortex.database import crud
+from src.data_vortex.database.database import SessionLocal, create_database
+from src.data_vortex.database.models import DbListing
+from src.data_vortex.rightmove_models import GenericListing
+from src.data_vortex.rightmove_processing import get_listings
 
 create_database()
 

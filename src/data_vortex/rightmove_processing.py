@@ -5,8 +5,8 @@ from bs4 import BeautifulSoup
 from pydantic import HttpUrl, ValidationError
 from requests import Response
 
-from data_vortex.rightmove_models import GenericListing, RightmoveRentalListing
-from data_vortex.utils.logging import log
+from src.data_vortex.rightmove_models import GenericListing, RightmoveRentalListing
+from src.data_vortex.utils.logging import log
 
 
 def process_response(response: Response) -> BeautifulSoup:

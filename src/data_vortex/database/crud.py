@@ -2,7 +2,7 @@ from sqlite3 import IntegrityError
 
 from sqlalchemy.orm import Session
 
-from data_vortex.database.models import DbListing
+from src.data_vortex.database.models import DbListing
 
 
 def create_listing(db: Session, db_listing: DbListing):

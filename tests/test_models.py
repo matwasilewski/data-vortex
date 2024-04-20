@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from data_vortex.rightmove_models import (
+from src.data_vortex.rightmove_models import (
     Currency,
     GenericListing,
     Price,

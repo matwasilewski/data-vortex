@@ -7,10 +7,10 @@ from pathlib import Path
 import requests
 from cachetools import TTLCache
 
-from data_vortex.rightmove_models import RequestData, RightmoveRentParams
-from data_vortex.rightmove_processing import get_listings, process_response
-from data_vortex.utils.config import settings
-from data_vortex.utils.logging import log
+from src.data_vortex.rightmove_models import RequestData, RightmoveRentParams
+from src.data_vortex.rightmove_processing import get_listings, process_response
+from src.data_vortex.utils.config import settings
+from src.data_vortex.utils.logging import log
 
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"

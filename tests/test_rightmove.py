@@ -5,12 +5,12 @@ import pytest
 import requests
 from _pytest.monkeypatch import MonkeyPatch
 
-from data_vortex.rightmove_models import RightmoveRentParams
-from data_vortex.rightmove_processing import (
+from src.data_vortex.rightmove_models import RightmoveRentParams
+from src.data_vortex.rightmove_processing import (
     get_listings,
     process_response,
 )
-from data_vortex.rightmove_query import (
+from src.data_vortex.rightmove_query import (
     get_listing_from_rightmove,
     search_rental_properties,
 )
