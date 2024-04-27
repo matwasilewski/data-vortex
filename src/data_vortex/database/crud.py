@@ -1,4 +1,5 @@
 from sqlite3 import DatabaseError, IntegrityError
+from typing import List
 
 from sqlalchemy.orm import Session
 
@@ -21,12 +22,62 @@ def create_listing(db: Session, rental_listing: RentalListing):
             return rental_listing
     except IntegrityError as e:
         db.rollback()
-        # Handle specific integrity issues, such as unique constraint violations
         raise ValueError(f"Integrity error: {e!s}")
     except DatabaseError as e:
         db.rollback()
-        # Handle general database errors
         raise Exception(f"Database error: {e!s}")
+
+
+def upsert_listing(db: Session, rental_listing: RentalListing):
+    try:
+        db.merge(rental_listing)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise Exception(f"Database error during upsert: {e!s}")
+
+
+def bulk_upsert_listings(
+    db: Session, new_listings: List[RentalListing], unique_attr="property_id"
+):
+    try:
+        unique_ids = [
+            getattr(listing, unique_attr) for listing in new_listings
+        ]
+
+        existing_listings = (
+            db.query(RentalListing)
+            .filter(getattr(RentalListing, unique_attr).in_(unique_ids))
+            .all()
+        )
+        existing_listings_dict = {
+            getattr(listing, unique_attr): listing
+            for listing in existing_listings
+        }
+
+        to_update = []
+        to_insert = []
+
+        for new_listing in new_listings:
+            existing_listing = existing_listings_dict.get(
+                getattr(new_listing, unique_attr)
+            )
+            if existing_listing:
+                for attr, value in vars(new_listing).items():
+                    setattr(existing_listing, attr, value)
+                to_update.append(existing_listing)
+            else:
+                to_insert.append(new_listing)
+
+        if to_update:
+            db.bulk_save_objects(to_update)
+        if to_insert:
+            db.bulk_save_objects(to_insert)
+
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise Exception(f"Database error during bulk upsert: {e}")
 
 
 def get_listing(db: Session, property_id: str):
