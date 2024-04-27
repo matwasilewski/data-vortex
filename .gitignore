@@ -17,4 +17,3 @@ data/*
 raw_data/*
 src/data_vortex/database/__pycache__/*
 local_dagster/*
-/alembic/*
