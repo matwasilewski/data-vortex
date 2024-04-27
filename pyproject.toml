@@ -5,7 +5,7 @@ authors = ["0.1.0 <mat.p.wasilewski@gmail.com>"]
 description = ""
 packages = [
     { include = "data_vortex", from = "src"},
-    { include = "dagster", from = "src"},
+    { include = "data_vortex_dagster", from = "src"},
 ]
 
 [tool.poetry.scripts]
@@ -88,6 +88,7 @@ ignore = [
 task-tags = ["TODO", "FIXME"]
 output-format = "grouped"
 show-source = true
+exclude = ["alembic"]
 
 [tool.ruff.mccabe]
 max-complexity = 10
@@ -95,7 +96,7 @@ max-complexity = 10
 [tool.mypy]
 ignore_missing_imports = true
 disallow_untyped_defs = true
-
+exclude = '^alembic/'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
