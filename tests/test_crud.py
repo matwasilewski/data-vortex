@@ -1,7 +1,8 @@
 from typing import Generator
+from unittest.mock import patch
 
 import pytest
-from data_vortex.database.crud import create_listing, upsert_listing, get_listing
+from data_vortex.database.crud import create_listing, upsert_listing, get_listing, bulk_upsert_listings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -90,3 +91,36 @@ def test_get_existing_listing(db_session, rental_listing):
 def test_get_non_existent_listing(db_session):
     fetched_listing = get_listing(db_session, "999")
     assert fetched_listing is None
+
+
+@pytest.fixture
+def new_and_existing_listings(db_session):
+    existing1 = RentalListing(property_id="200", description="Old Description 200")
+    existing2 = RentalListing(property_id="201", description="Old Description 201")
+    db_session.add_all([existing1, existing2])
+    db_session.commit()
+
+    new_listing = RentalListing(property_id="202", description="New Listing 202")
+    update_listing = RentalListing(property_id="200", description="Updated Description 200")
+    return [new_listing, update_listing]
+
+def test_bulk_upsert_inserts_new_and_updates_existing(db_session, new_and_existing_listings):
+    bulk_upsert_listings(db_session, new_and_existing_listings)
+
+    new_insert = db_session.query(RentalListing).filter_by(property_id="202").one()
+    assert new_insert.description == "New Listing 202"
+
+    updated = db_session.query(RentalListing).filter_by(property_id="200").one()
+    assert updated.description == "Updated Description 200"
+
+    assert db_session.query(RentalListing).count() == 3
+
+
+def test_bulk_upsert_rollback_on_error(db_session, new_and_existing_listings):
+    with patch('sqlalchemy.orm.Session.bulk_save_objects', side_effect=Exception("Simulated Failure")):
+        with pytest.raises(Exception) as exc_info:
+            bulk_upsert_listings(db_session, new_and_existing_listings)
+
+        assert "Database error during bulk upsert" in str(exc_info.value)
+
+    assert db_session.query(RentalListing).count() == 2
