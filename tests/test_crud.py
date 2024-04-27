@@ -1,7 +1,7 @@
 from typing import Generator
 
 import pytest
-from data_vortex.database.crud import create_listing, upsert_listing
+from data_vortex.database.crud import create_listing, upsert_listing, get_listing
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -74,3 +74,19 @@ def test_upsert(db_session, rental_listing):
     assert query_result.count() == 1
     assert query_result.first().description == "New description!"
     assert result == listing_for_upsert
+
+
+@pytest.mark.parametrize("rental_listing", ["126"], indirect=True)
+def test_get_existing_listing(db_session, rental_listing):
+    db_session.add(rental_listing)
+    db_session.commit()
+
+    fetched_listing = get_listing(db_session, "126")
+    assert fetched_listing is not None
+    assert fetched_listing.property_id == "126"
+    assert fetched_listing.description == "Test Listing no. 126"
+
+
+def test_get_non_existent_listing(db_session):
+    fetched_listing = get_listing(db_session, "999")
+    assert fetched_listing is None
