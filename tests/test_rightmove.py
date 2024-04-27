@@ -17,10 +17,12 @@ from src.data_vortex.rightmove_query import (
 
 
 @pytest.fixture()
-def mock_response(test_resources_root: Path, monkeypatch: MonkeyPatch) -> None:
+def _mock_response(
+    test_resources_root: Path, monkeypatch: MonkeyPatch
+) -> None:
     """Requests.get() mocked to return {'mock_key':'mock_response'}."""
 
-    def mock_get(*args, **kwargs):
+    def mock_get(*args, **kwargs):  # noqa: ARG001
         return pickle.load(
             (test_resources_root / "search_response.pkl").open("rb")
         )
@@ -28,7 +30,8 @@ def mock_response(test_resources_root: Path, monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(requests, "get", mock_get)
 
 
-def test_full_run(mock_response) -> None:
+@pytest.mark.usefixtures("_mock_response")
+def test_full_run() -> None:
     respo = search_rental_properties(rightmove_params=RightmoveRentParams())
     soup = process_response(respo)
     listings = get_listings(soup)
