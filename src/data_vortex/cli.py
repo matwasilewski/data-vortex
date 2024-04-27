@@ -83,7 +83,11 @@ def get_new_properties(
                 price += 2 * price_increment
 
         min_price = str(price) if price is not None else None
-        max_price_str = str(price + price_increment - 1) if price is not None else str(max_price)
+        max_price_str = (
+            str(price + price_increment - 1)
+            if price is not None
+            else str(max_price)
+        )
 
         params = RightmoveRentParams(
             minBedrooms=min_bedrooms,

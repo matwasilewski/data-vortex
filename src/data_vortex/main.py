@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 
 from src.data_vortex.database import crud
 from src.data_vortex.database.database import SessionLocal, create_database
-from src.data_vortex.database.models import DbListing
+from src.data_vortex.database.models import RentalListing
 from src.data_vortex.rightmove_models import GenericListing
 from src.data_vortex.rightmove_processing import get_listings
 
@@ -21,7 +21,7 @@ def get_db():
 def create_and_fetch_listing(listing_data: GenericListing) -> None:
     db = next(get_db())  # Get a session
     # Assuming `listing_data` is a dict with your listing data
-    db_listing = DbListing(
+    db_listing = RentalListing(
         property_id=listing_data.property_id,
         image_url=str(listing_data.image_url),
         description=listing_data.description,
@@ -32,7 +32,7 @@ def create_and_fetch_listing(listing_data: GenericListing) -> None:
         postcode=listing_data.postcode,
         created_date=listing_data.created_date,
     )
-    listing = crud.create_listing(db, db_listing=db_listing)
+    listing = crud.create_listing(db, rental_listing=db_listing)
     print(f"Created listing with ID: {listing.property_id}")
 
     fetched_listing = crud.get_listing(db, property_id=listing.property_id)

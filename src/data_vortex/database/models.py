@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-class DbListing(Base):
+class RentalListing(Base):
     __tablename__ = "rental_listings"
     property_id = Column(String, primary_key=True)
     image_url = Column(String, nullable=True)
