@@ -6,7 +6,10 @@ from bs4 import BeautifulSoup
 from pydantic import HttpUrl
 
 from src.data_vortex.rightmove_models import Currency, Price, PriceUnit
-from src.data_vortex.rightmove_processing import get_detailed_listing, get_listings
+from src.data_vortex.rightmove_processing import (
+    get_detailed_listing,
+    get_listings,
+)
 
 
 @pytest.fixture()
