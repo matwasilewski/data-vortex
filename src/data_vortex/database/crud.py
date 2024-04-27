@@ -32,6 +32,7 @@ def upsert_listing(db: Session, rental_listing: RentalListing):
     try:
         db.merge(rental_listing)
         db.commit()
+        return rental_listing
     except Exception as e:
         db.rollback()
         raise Exception(f"Database error during upsert: {e!s}")
