@@ -1,12 +1,15 @@
 from sqlite3 import DatabaseError, IntegrityError
 from typing import List
 
+from sqlalchemy import update, insert
 from sqlalchemy.orm import Session
 
+from src.data_vortex.rightmove_models import RightmoveRentalListing
 from src.data_vortex.database.models import RentalListing
 
 
-def create_listing(db: Session, rental_listing: RentalListing):
+def create_listing(db: Session, rental_listing: RightmoveRentalListing):
+    listing_dict = rental_listing.dict()
     try:
         existing_listing = (
             db.query(RentalListing)
@@ -14,12 +17,13 @@ def create_listing(db: Session, rental_listing: RentalListing):
             .first()
         )
         if existing_listing:
-            return existing_listing
+            # return RightmoveRentalListing(**existing_listing.dict())
+            pass
         else:
-            db.add(rental_listing)
-            db.commit()
-            db.refresh(rental_listing)
-            return rental_listing
+            db.execute(
+                insert(RentalListing),
+                listing_dict,
+            )
     except IntegrityError as e:
         db.rollback()
         raise ValueError(f"Integrity error: {e!s}")
@@ -28,7 +32,7 @@ def create_listing(db: Session, rental_listing: RentalListing):
         raise Exception(f"Database error: {e!s}")
 
 
-def upsert_listing(db: Session, rental_listing: RentalListing):
+def upsert_listing(db: Session, rental_listing: RightmoveRentalListing):
     try:
         db.merge(rental_listing)
         db.commit()
@@ -39,7 +43,7 @@ def upsert_listing(db: Session, rental_listing: RentalListing):
 
 
 def bulk_upsert_listings(
-    db: Session, new_listings: List[RentalListing], unique_attr="property_id"
+    db: Session, new_listings: List[RightmoveRentalListing], unique_attr="property_id"
 ):
     try:
         unique_ids = [
@@ -71,7 +75,10 @@ def bulk_upsert_listings(
                 to_insert.append(new_listing)
 
         if to_update:
-            db.bulk_save_objects(to_update)
+            db.execute(
+                update(RentalListing),
+                to_update,
+            )
         if to_insert:
             db.bulk_save_objects(to_insert)
 
