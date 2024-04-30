@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 
+from data_vortex.database.models import RentalListing
 from src.data_vortex.rightmove_models import (
     Currency,
     GenericListing,

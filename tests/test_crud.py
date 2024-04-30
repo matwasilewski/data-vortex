@@ -42,7 +42,8 @@ def rental_listing(request) -> RightmoveRentalListing:
 @pytest.mark.parametrize("rental_listing", ["123"], indirect=True)
 def test_create_new_listing(db_session, rental_listing):
     count = db_session.query(RentalListing).count()
-    result = create_listing(db_session, rental_listing)
+    create_listing(db_session, rental_listing)
+    result = db_session.query(RentalListing).filter_by(property_id="123").one()
     assert result == rental_listing
     assert result.property_id == "123"
     assert db_session.query(RentalListing).count() == count + 1
