@@ -12,6 +12,7 @@ class RentalListing(Base):
     image_url = Column(String, nullable=True)
     description = Column(String)
     price_amount = Column(Float)
+    price_per = Column(String, nullable=True)
     price_currency = Column(String, nullable=True)
     added_date = Column(Date)
     address = Column(String, nullable=True)
