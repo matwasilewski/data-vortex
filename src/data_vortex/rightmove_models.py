@@ -34,7 +34,7 @@ class Price(BaseModel):
 
 # noinspection PyNestedDecorators
 class GenericListing(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", from_attributes=True)
     property_id: str
     image_url: Optional[HttpUrl] = None
     description: str
@@ -47,6 +47,21 @@ class GenericListing(BaseModel):
     )
     _default_currency: Optional[Currency] = None
     _default_price_unit: Optional[PriceUnit] = None
+
+    def to_orm_dict(self):
+        return {
+            "property_id": self.property_id,
+            "image_url": str(self.image_url),
+            "description": self.description,
+            "price_amount": self.price.price,
+            "price_per": self.price.per.value,
+            "price_currency": self.price.currency.name,
+            "added_date": self.added_date,
+            "address": self.address,
+            "postcode": self.postcode,
+            "created_date": self.created_date,
+        }
+
 
     @field_validator("property_id")
     @classmethod
