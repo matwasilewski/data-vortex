@@ -1,7 +1,9 @@
 from sqlite3 import DatabaseError, IntegrityError
+
+from sqlalchemy import update
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from typing import List
 
-from sqlalchemy import update, insert
 from sqlalchemy.orm import Session
 
 from src.data_vortex.utils.config import settings
@@ -10,25 +12,18 @@ from src.data_vortex.rightmove_models import RightmoveRentalListing
 from src.data_vortex.database.models import RentalListing
 
 
-def upsert_listing(db: Session, rental_listing: RightmoveRentalListing):
-    if settings.DATBASE_TYPE != "sqlite":
+def upsert_listing(db: Session, rental_listing: RightmoveRentalListing) -> None:
+    if settings.DATABASE_TYPE != "sqlite":
         raise NotImplementedError("Only SQLite database is supported at the moment.")
 
-    listing_dict = rental_listing.to_orm_dict()
     try:
-        existing_listing = (
-            db.query(RentalListing)
-            .filter(RentalListing.property_id == rental_listing.property_id)
-            .first()
+        listing_dict = rental_listing.to_orm_dict()
+        stmt = sqlite_insert(RentalListing).values(listing_dict)
+        stmt = stmt.on_conflict_do_update(
+            index_elements=[RentalListing.property_id],
+            set_=listing_dict,
         )
-        if existing_listing:
-            return orm2pydantic_rental_listing(existing_listing)
-        else:
-            rl = db.execute(
-                insert(RentalListing).returning(RentalListing),
-                listing_dict,
-            )
-            return orm2pydantic_rental_listing(rl.first()[0])
+        db.execute(stmt)
     except IntegrityError as e:
         db.rollback()
         raise ValueError(f"Integrity error: {e!s}")
@@ -40,7 +35,7 @@ def upsert_listing(db: Session, rental_listing: RightmoveRentalListing):
 def bulk_upsert_listings(
         db: Session, new_listings: List[RightmoveRentalListing], unique_attr="property_id"
 ):
-    if settings.DATBASE_TYPE != "sqlite":
+    if settings.DATABASE_TYPE != "sqlite":
         raise NotImplementedError("Only SQLite database is supported at the moment.")
 
     try:
@@ -87,7 +82,7 @@ def bulk_upsert_listings(
 
 
 def get_listing(db: Session, property_id: str):
-    if settings.DATBASE_TYPE != "sqlite":
+    if settings.DATABASE_TYPE != "sqlite":
         raise NotImplementedError("Only SQLite database is supported at the moment.")
 
     return (
@@ -98,7 +93,7 @@ def get_listing(db: Session, property_id: str):
 
 
 def delete_listing(db: Session, property_id: str):
-    if settings.DATBASE_TYPE != "sqlite":
+    if settings.DATABASE_TYPE != "sqlite":
         raise NotImplementedError("Only SQLite database is supported at the moment.")
 
     try:

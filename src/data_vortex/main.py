@@ -32,7 +32,7 @@ def create_and_fetch_listing(listing_data: GenericListing) -> None:
         postcode=listing_data.postcode,
         created_date=listing_data.created_date,
     )
-    listing = crud.create_listing(db, rental_listing=db_listing)
+    listing = crud.upsert_listing(db, rental_listing=db_listing)
     print(f"Created listing with ID: {listing.property_id}")
 
     fetched_listing = crud.get_listing(db, property_id=listing.property_id)

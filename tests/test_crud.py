@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
-from src.data_vortex.database.crud import create_listing, get_listing, bulk_upsert_listings
+from src.data_vortex.database.crud import upsert_listing, get_listing, bulk_upsert_listings
 from src.data_vortex.utils.conversion import orm2pydantic_rental_listing
 from src.data_vortex.database.models import Base, RentalListing
 from src.data_vortex.rightmove_models import RightmoveRentalListing, Currency, PriceUnit, Price
@@ -44,10 +44,9 @@ def rental_listing(request) -> RightmoveRentalListing:
 @pytest.mark.parametrize("rental_listing", ["123"], indirect=True)
 def test_create_new_listing(db_session: SessionLocal, rental_listing: RightmoveRentalListing) -> None:
     count = db_session.query(RentalListing).count()
-    create_result = create_listing(db_session, rental_listing)
+    upsert_listing(db_session, rental_listing)
     result = db_session.query(RentalListing).filter_by(property_id="123").one()
     pydantic_result = orm2pydantic_rental_listing(result)
-    assert create_result == pydantic_result
 
     assert rental_listing is not None
     assert pydantic_result is not None
@@ -67,14 +66,13 @@ def test_create_new_listing(db_session: SessionLocal, rental_listing: RightmoveR
 
 
 @pytest.mark.parametrize("rental_listing", ["124"], indirect=True)
-def test_return_existing_listing_on_create(db_session: SessionLocal, rental_listing: RightmoveRentalListing):
+def test_no_error_on_double_create(db_session: SessionLocal, rental_listing: RightmoveRentalListing):
     # Create the listing
-    create_listing(db_session, rental_listing)
+    upsert_listing(db_session, rental_listing)
     count = db_session.query(RentalListing).count()
 
     # Attempt to create the same listing again
-    result = create_listing(db_session, rental_listing)
-    assert result == rental_listing
+    upsert_listing(db_session, rental_listing)
     assert db_session.query(RentalListing).count() == count
 
 
@@ -102,7 +100,7 @@ def test_return_existing_listing_on_create(db_session: SessionLocal, rental_list
 
 @pytest.mark.parametrize("rental_listing", ["126"], indirect=True)
 def test_get_existing_listing(db_session: SessionLocal, rental_listing: RightmoveRentalListing) -> None:
-    create_listing(db_session, rental_listing)
+    upsert_listing(db_session, rental_listing)
 
     fetched_listing = get_listing(db_session, "126")
     assert fetched_listing is not None
