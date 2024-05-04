@@ -4,12 +4,16 @@ from typing import List
 from sqlalchemy import update, insert
 from sqlalchemy.orm import Session
 
-from data_vortex.utils.conversion import orm2pydantic_rental_listing
+from src.data_vortex.utils.config import settings
+from src.data_vortex.utils.conversion import orm2pydantic_rental_listing
 from src.data_vortex.rightmove_models import RightmoveRentalListing
 from src.data_vortex.database.models import RentalListing
 
 
-def create_listing(db: Session, rental_listing: RightmoveRentalListing):
+def upsert_listing(db: Session, rental_listing: RightmoveRentalListing):
+    if settings.DATBASE_TYPE != "sqlite":
+        raise NotImplementedError("Only SQLite database is supported at the moment.")
+
     listing_dict = rental_listing.to_orm_dict()
     try:
         existing_listing = (
@@ -34,8 +38,11 @@ def create_listing(db: Session, rental_listing: RightmoveRentalListing):
 
 
 def bulk_upsert_listings(
-    db: Session, new_listings: List[RightmoveRentalListing], unique_attr="property_id"
+        db: Session, new_listings: List[RightmoveRentalListing], unique_attr="property_id"
 ):
+    if settings.DATBASE_TYPE != "sqlite":
+        raise NotImplementedError("Only SQLite database is supported at the moment.")
+
     try:
         unique_ids = [
             getattr(listing, unique_attr) for listing in new_listings
@@ -80,13 +87,20 @@ def bulk_upsert_listings(
 
 
 def get_listing(db: Session, property_id: str):
+    if settings.DATBASE_TYPE != "sqlite":
+        raise NotImplementedError("Only SQLite database is supported at the moment.")
+
     return (
         db.query(RentalListing)
         .filter(RentalListing.property_id == property_id)
         .first()
     )
 
+
 def delete_listing(db: Session, property_id: str):
+    if settings.DATBASE_TYPE != "sqlite":
+        raise NotImplementedError("Only SQLite database is supported at the moment.")
+
     try:
         listing = get_listing(db, property_id)
         if listing:

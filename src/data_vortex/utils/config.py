@@ -63,6 +63,7 @@ class Settings(BaseSettings):
     SYSLOG_ADDR: Optional[Path] = None
 
     DATABASE_URL: str = "sqlite:///vortex.db"
+    DATBASE_TYPE: str = "sqlite"
 
     USE_CACHE_FOR_SEARCH: bool = True
     DATA_DIR: Path = Path("data")
