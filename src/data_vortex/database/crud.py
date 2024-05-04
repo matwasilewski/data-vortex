@@ -4,6 +4,7 @@ from typing import List
 from sqlalchemy import update, insert
 from sqlalchemy.orm import Session
 
+from data_vortex.utils.conversion import orm2pydantic_rental_listing
 from src.data_vortex.rightmove_models import RightmoveRentalListing
 from src.data_vortex.database.models import RentalListing
 
@@ -17,29 +18,19 @@ def create_listing(db: Session, rental_listing: RightmoveRentalListing):
             .first()
         )
         if existing_listing:
-            # return RightmoveRentalListing(**existing_listing.dict())
-            pass
+            return orm2pydantic_rental_listing(existing_listing)
         else:
-            db.execute(
-                insert(RentalListing),
+            rl = db.execute(
+                insert(RentalListing).returning(RentalListing),
                 listing_dict,
             )
+            return orm2pydantic_rental_listing(rl.first()[0])
     except IntegrityError as e:
         db.rollback()
         raise ValueError(f"Integrity error: {e!s}")
     except DatabaseError as e:
         db.rollback()
         raise Exception(f"Database error: {e!s}")
-
-
-def upsert_listing(db: Session, rental_listing: RightmoveRentalListing):
-    try:
-        db.merge(rental_listing)
-        db.commit()
-        return rental_listing
-    except Exception as e:
-        db.rollback()
-        raise Exception(f"Database error during upsert: {e!s}")
 
 
 def bulk_upsert_listings(
