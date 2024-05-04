@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["0.1.0 <mat.p.wasilewski@gmail.com>"]
 description = ""
 packages = [
+    { include = "src"},
     { include = "data_vortex", from = "src"},
     { include = "data_vortex_dagster", from = "src"},
 ]
