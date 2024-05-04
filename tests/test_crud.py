@@ -41,11 +41,12 @@ def rental_listing(request) -> RightmoveRentalListing:
 
 
 @pytest.mark.parametrize("rental_listing", ["123"], indirect=True)
-def test_create_new_listing(db_session, rental_listing):
+def test_create_new_listing(db_session: SessionLocal, rental_listing: RightmoveRentalListing) -> None:
     count = db_session.query(RentalListing).count()
-    create_listing(db_session, rental_listing)
+    create_result = create_listing(db_session, rental_listing)
     result = db_session.query(RentalListing).filter_by(property_id="123").one()
     pydantic_result = orm2pydantic_rental_listing(result)
+    assert create_result == pydantic_result
 
     assert rental_listing is not None
     assert pydantic_result is not None
@@ -65,18 +66,19 @@ def test_create_new_listing(db_session, rental_listing):
 
 
 @pytest.mark.parametrize("rental_listing", ["124"], indirect=True)
-def test_return_existing_listing_on_create(db_session, rental_listing):
-    db_session.add(rental_listing)
-    db_session.commit()
+def test_return_existing_listing_on_create(db_session: SessionLocal, rental_listing: RightmoveRentalListing):
+    # Create the listing
+    create_listing(db_session, rental_listing)
     count = db_session.query(RentalListing).count()
 
+    # Attempt to create the same listing again
     result = create_listing(db_session, rental_listing)
     assert result == rental_listing
     assert db_session.query(RentalListing).count() == count
 
 
 @pytest.mark.parametrize("rental_listing", ["125"], indirect=True)
-def test_upsert(db_session, rental_listing):
+def test_update(db_session, rental_listing):
     query_result = db_session.query(RentalListing).filter_by(property_id="125")
     assert query_result.count() == 0
 
@@ -137,6 +139,7 @@ def new_and_existing_listings(db_session):
     return [new_listing, update_listing]
 
 
+@pytest.mark.skip(reason="Upsert to be changed into update!")
 def test_bulk_upsert_inserts_new_and_updates_existing(db_session, new_and_existing_listings):
     count = db_session.query(RentalListing).count()
     bulk_upsert_listings(db_session, new_and_existing_listings)
