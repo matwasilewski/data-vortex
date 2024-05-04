@@ -9,7 +9,7 @@ from src.data_vortex.database.models import RentalListing
 
 
 def create_listing(db: Session, rental_listing: RightmoveRentalListing):
-    listing_dict = rental_listing.dict()
+    listing_dict = rental_listing.to_orm_dict()
     try:
         existing_listing = (
             db.query(RentalListing)
