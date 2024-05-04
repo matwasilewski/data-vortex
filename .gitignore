@@ -17,3 +17,8 @@ data/*
 raw_data/*
 src/data_vortex/database/__pycache__/*
 local_dagster/*
+alembic/__pycache__/*
+alembic/versions/__pycache__/*
+notebooks/.ipynb_checkpoints/*
+src/__pycache__/*
+src/data_vortex_dagster/__pycache__/*
