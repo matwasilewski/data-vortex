@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
 from types import MappingProxyType
-from typing import Mapping, Optional, Any
+from typing import Any, Mapping, Optional
 
 from pydantic import (
     BaseModel,
@@ -79,7 +79,6 @@ class GenericListing(BaseModel):
             postcode=obj_dict["postcode"],
             created_date=obj_dict["created_date"],
         )
-
 
     @field_validator("property_id")
     @classmethod

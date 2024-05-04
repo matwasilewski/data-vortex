@@ -1,13 +1,22 @@
 from pydantic_core import Url
 
 from src.data_vortex.database.models import RentalListing
-from src.data_vortex.rightmove_models import GenericListing, RightmoveRentalListing, Price, Currency, PriceUnit
+from src.data_vortex.rightmove_models import (
+    Currency,
+    Price,
+    PriceUnit,
+    RightmoveRentalListing,
+)
 
 
-def orm2pydantic_rental_listing(orm_rental_listing: RentalListing) -> RightmoveRentalListing:
+def orm2pydantic_rental_listing(
+    orm_rental_listing: RentalListing,
+) -> RightmoveRentalListing:
     return RightmoveRentalListing(
         property_id=orm_rental_listing.property_id,
-        image_url=Url(orm_rental_listing.image_url) if orm_rental_listing.image_url != "None" else None,
+        image_url=Url(orm_rental_listing.image_url)
+        if orm_rental_listing.image_url != "None"
+        else None,
         description=orm_rental_listing.description,
         price=Price(
             price=orm_rental_listing.price_amount,
