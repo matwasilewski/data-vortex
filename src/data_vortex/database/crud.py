@@ -86,22 +86,6 @@ def get_listing(db: Session, property_id: str):
         .first()
     )
 
-
-def update_listing(db: Session, property_id: str, **updates):
-    try:
-        listing = get_listing(db, property_id)
-        if listing:
-            for key, value in updates.items():
-                setattr(listing, key, value)
-            db.commit()
-            return listing
-        else:
-            raise ValueError("Listing not found for the provided property_id.")
-    except DatabaseError as e:
-        db.rollback()
-        raise Exception(f"Database error during update: {e!s}")
-
-
 def delete_listing(db: Session, property_id: str):
     try:
         listing = get_listing(db, property_id)
