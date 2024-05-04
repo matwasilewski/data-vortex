@@ -3,8 +3,8 @@ import datetime
 import pytest
 from pydantic_core import Url
 
-from data_vortex.database.models import RentalListing
-from data_vortex.rightmove_models import RightmoveRentalListing, Price, Currency, PriceUnit
+from src.data_vortex.database.models import RentalListing
+from src.data_vortex.rightmove_models import RightmoveRentalListing, Price, Currency, PriceUnit
 
 
 @pytest.fixture
