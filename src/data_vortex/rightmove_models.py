@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
 from types import MappingProxyType
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Any
 
 from pydantic import (
     BaseModel,
@@ -14,10 +14,10 @@ from pydantic import (
 
 
 class PriceUnit(Enum):
-    PER_WEEK = "per_week"
-    PER_MONTH = "per_month"
-    PER_YEAR = "per_year"
-    ONE_OFF = "one_off"
+    PER_WEEK = "PER_WEEK"
+    PER_MONTH = "PER_MONTH"
+    PER_YEAR = "PER_YEAR"
+    ONE_OFF = "ONE_OFF"
 
 
 class Currency(Enum):
@@ -61,6 +61,24 @@ class GenericListing(BaseModel):
             "postcode": self.postcode,
             "created_date": self.created_date,
         }
+
+    @classmethod
+    def from_orm(cls, obj: Any):
+        obj_dict = obj.__dict__
+        return cls(
+            property_id=obj_dict["property_id"],
+            image_url=obj_dict["image_url"],
+            description=obj_dict["description"],
+            price=Price(
+                price=obj_dict["price_amount"],
+                currency=Currency[obj_dict["price_currency"]],
+                per=PriceUnit[obj_dict["price_per"]],
+            ),
+            added_date=obj_dict["added_date"],
+            address=obj_dict["address"],
+            postcode=obj_dict["postcode"],
+            created_date=obj_dict["created_date"],
+        )
 
 
     @field_validator("property_id")
