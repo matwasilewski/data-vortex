@@ -1,10 +1,11 @@
 from typing import Generator
 
 import pytest
-from data_vortex.database.crud import create_listing, upsert_listing, get_listing, bulk_upsert_listings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from src.data_vortex.database.crud import create_listing, upsert_listing, get_listing, bulk_upsert_listings
+from src.data_vortex.utils.conversion import orm2pydantic_rental_listing
 from src.data_vortex.database.models import Base, RentalListing
 from src.data_vortex.rightmove_models import RightmoveRentalListing, Currency, PriceUnit, Price
 
@@ -44,8 +45,22 @@ def test_create_new_listing(db_session, rental_listing):
     count = db_session.query(RentalListing).count()
     create_listing(db_session, rental_listing)
     result = db_session.query(RentalListing).filter_by(property_id="123").one()
-    assert result == rental_listing
-    assert result.property_id == "123"
+    pydantic_result = orm2pydantic_rental_listing(result)
+
+    assert rental_listing is not None
+    assert pydantic_result is not None
+    assert rental_listing.property_id == pydantic_result.property_id
+    assert rental_listing.description == pydantic_result.description
+    assert rental_listing.price == pydantic_result.price
+    assert rental_listing.added_date == pydantic_result.added_date
+    assert rental_listing.address == pydantic_result.address
+    assert rental_listing.postcode == pydantic_result.postcode
+    assert rental_listing.created_date == pydantic_result.created_date
+    assert rental_listing.price.dict() == pydantic_result.price.dict()
+
+    assert pydantic_result.dict() == rental_listing.dict()
+    assert pydantic_result == rental_listing
+    assert pydantic_result.property_id == "123"
     assert db_session.query(RentalListing).count() == count + 1
 
 
@@ -100,9 +115,21 @@ def test_get_non_existent_listing(db_session):
 
 @pytest.fixture
 def new_and_existing_listings(db_session):
-    existing1 = RightmoveRentalListing(property_id="200", description="Old Description 200")
-    existing2 = RightmoveRentalListing(property_id="201", description="Old Description 201")
-    db_session.add_all([existing1, existing2])
+    existing1 = RightmoveRentalListing(
+        property_id="200",
+        description="Old Description 200",
+        price=Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH),
+        added_date="2021-01-01",
+        address="123 Fake Street, AB12 3CD",
+        postcode="AB12 3CD",
+    )
+    existing2 = RightmoveRentalListing(property_id="201", description="Old Description 201",
+                                       price=Price(price=1000, currency=Currency.GBP, per=PriceUnit.PER_MONTH),
+                                       added_date="2021-01-01",
+                                       address="123 Fake Street, AB12 3CD",
+                                       postcode="AB12 3CD",
+                                       )
+    db_session.add_all([existing1.to_orm_dict(), existing2.to_orm_dict()])
     db_session.commit()
 
     new_listing = RightmoveRentalListing(property_id="202", description="New Listing 202")
