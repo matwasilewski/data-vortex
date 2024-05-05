@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import List, Optional
 
 from dagster import ConfigurableResource
-from dagster_gcp import GCSResource
 
 
 class ExternalResource(ConfigurableResource):
@@ -43,9 +42,6 @@ class ExternalResourceOnFs(ExternalResource):
                 continue
             else:
                 with file_path.open("rb") as file:
-                    files_as_bytes.append(
-                        file.read()
-                    )
+                    files_as_bytes.append(file.read())
 
         return files_as_bytes
-

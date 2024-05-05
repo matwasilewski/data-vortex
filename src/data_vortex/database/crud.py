@@ -48,7 +48,9 @@ def bulk_upsert_listings(
     try:
         unique_ids = [listing.property_id for listing in new_listings]
 
-        existing_listings = db.query(RentalListing).filter(RentalListing.property_id.in_(unique_ids))
+        existing_listings = db.query(RentalListing).filter(
+            RentalListing.property_id.in_(unique_ids)
+        )
 
         existing_listings_dict = {
             listing.property_id: listing for listing in existing_listings
