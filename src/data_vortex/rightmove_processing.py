@@ -7,7 +7,7 @@ from requests import Response
 
 from src.data_vortex.rightmove_models import (
     GenericListing,
-    RightmoveRentalListing,
+    RightmoveRentalListing, Price, Currency, PriceUnit,
 )
 from src.data_vortex.utils.logging import log
 
@@ -109,10 +109,15 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     address = address_tag.get_text(strip=True)
     postcode = extract_postcode(address)
 
+    price_spans = soup.find_all("span", string=re.compile("pcm"))
+    prices = []
+    for span in price_spans:
+        prices.append(extract_price_corrected(span.text.strip()))
+
     return RightmoveRentalListing(
         property_id=property_id,
         description=description,
-        price="5000",
+        price=prices[0],
         added_date="2020-10-07",
         address=address,
         postcode=postcode,
@@ -136,3 +141,48 @@ def extract_postcode(address: str) -> str:
         return match.group().upper()
     else:
         raise ValueError("No valid UK postcode found in the address.")
+
+
+def extract_price_corrected(html_content: str) -> Price:
+    prices_pattern = r"£(\d{1,3}(?:,\d{3})*?)\s*(pcm|pw)"
+    prices = re.findall(prices_pattern, html_content)
+
+    unique_prices = {
+        PriceUnit.PER_MONTH: set(),
+        PriceUnit.PER_WEEK: set()
+    }
+
+    for price_str, term in prices:
+        _normalize_prices(price_str, term, unique_prices)
+
+    _check_for_more_than_one_unique_price_per_period_type(unique_prices)
+
+    price_period, price_value = _choose_price(unique_prices)
+
+    return Price(price=price_value, currency=Currency.GBP, per=price_period)
+
+
+def _choose_price(unique_prices):
+    if unique_prices[PriceUnit.PER_MONTH]:
+        price_value = next(iter(unique_prices[PriceUnit.PER_MONTH]))
+        price_period = PriceUnit.PER_MONTH
+    elif unique_prices[PriceUnit.PER_WEEK]:
+        price_value = next(iter(unique_prices[PriceUnit.PER_WEEK]))
+        price_period = PriceUnit.PER_WEEK
+    else:
+        raise ValueError("No valid price information found")
+    return price_period, price_value
+
+
+def _check_for_more_than_one_unique_price_per_period_type(unique_prices):
+    for period, prices_set in unique_prices.items():
+        if len(prices_set) > 1:
+            raise ValueError(f"More than one unique price found for {period.value}")
+
+
+def _normalize_prices(price_str, term, unique_prices):
+    price_int = int(price_str.replace(',', ''))
+    if term == 'pcm':
+        unique_prices[PriceUnit.PER_MONTH].add(price_int)
+    elif term == 'pw':
+        unique_prices[PriceUnit.PER_WEEK].add(price_int)
