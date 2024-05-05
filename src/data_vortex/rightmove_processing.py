@@ -102,15 +102,37 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     else:
         raise ValueError("Property ID not found in the URL.")
 
-    # Find the description
     description_meta_tag = soup.find("meta", property="og:description")
     description = description_meta_tag.get("content", None)
+
+    address_tag = soup.find('h1', itemprop='streetAddress')
+    address = address_tag.get_text(strip=True)
+    postcode = extract_postcode(address)
 
     return RightmoveRentalListing(
         property_id=property_id,
         description=description,
         price="5000",
         added_date="2020-10-07",
-        address="Lorem impsum EC1Y 0RJ",
-        postcode="EC1Y 0RJ",
+        address=address,
+        postcode=postcode,
     )
+
+
+def extract_postcode(address: str) -> str:
+    # official UK postcode regex pattern
+    postcode_pattern = (
+        r"([Gg][Ii][Rr] 0[Aa]{2})|"
+        r"((([A-Za-z][0-9]{1,2})|"
+        r"([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|"
+        r"([A-Za-z][0-9][A-Za-z])|"
+        r"([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))"
+        r"\s?[0-9][A-Za-z]{2})"
+    )
+
+    match = re.search(postcode_pattern, address, re.IGNORECASE)
+
+    if match:
+        return match.group().upper()
+    else:
+        raise ValueError("No valid UK postcode found in the address.")
