@@ -32,6 +32,12 @@ class Price(BaseModel):
     per: Optional[PriceUnit]
 
 
+class FurnishedStatus(Enum):
+    UNFURNISHED = "UNFURNISHED"
+    FURNISHED = "FURNISHED"
+    PARTIALLY_FURNISHED = "PARTIALLY_FURNISHED"
+
+
 # noinspection PyNestedDecorators
 class GenericListing(BaseModel):
     model_config = ConfigDict(extra="forbid", from_attributes=True)
@@ -39,7 +45,8 @@ class GenericListing(BaseModel):
     image_url: Optional[HttpUrl] = None
     description: str
     price: Price
-    added_date: datetime.date
+    added_date: Optional[datetime.date]
+    available_date: Optional[datetime.date]
     address: Optional[str]
     postcode: Optional[str]
     created_date: datetime.datetime = Field(
@@ -88,10 +95,12 @@ class GenericListing(BaseModel):
             raise ValueError("ID must not be zero!")
         return v
 
-    @field_validator("added_date", mode="before")
+    @field_validator("added_date", "available_date", mode="before")
     @classmethod
-    def parse_added_date(cls, v: str) -> datetime.date:
-        if isinstance(v, datetime.date):
+    def parse_date(cls, v: Optional[str]) -> Optional[datetime.date]:
+        if v is None:
+            return None
+        elif isinstance(v, datetime.date):
             return v
         elif isinstance(v, datetime.datetime):
             return v.date()
@@ -110,7 +119,13 @@ class GenericListing(BaseModel):
         else:
             date_str = v
 
-        for date_format in ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"]:
+        for date_format in [
+            "%Y-%m-%d",
+            "%d-%m-%Y",
+            "%d/%m/%Y",
+            "%Y/%m/%d",
+            "%Y%m%d",
+        ]:
             try:
                 return datetime.datetime.strptime(date_str, date_format).date()
             except ValueError:
