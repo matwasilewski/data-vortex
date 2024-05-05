@@ -45,8 +45,8 @@ class GenericListing(BaseModel):
     image_url: Optional[HttpUrl] = None
     description: str
     price: Price
-    added_date: Optional[datetime.date]
-    available_date: Optional[datetime.date]
+    added_date: Optional[datetime.date] = None
+    available_date: Optional[datetime.date] = None
     address: Optional[str]
     postcode: Optional[str]
     created_date: datetime.datetime = Field(

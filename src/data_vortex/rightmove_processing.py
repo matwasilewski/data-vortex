@@ -136,9 +136,13 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
         )
         available_date = data.get("lettings", {}).get("letAvailableDate", None)
 
+    image_tag = soup.find("meta", property="og:image")
+    image_url = image_tag.get("content", None)
+
     return RightmoveRentalListing(
         property_id=property_id,
         description=description,
+        image_url=image_url,
         price=prices[0],
         added_date=added_date,
         available_date=available_date,
