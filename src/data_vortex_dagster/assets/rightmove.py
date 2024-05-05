@@ -1,7 +1,8 @@
 from typing import List
 
 from dagster import asset, StaticPartitionsDefinition, AssetExecutionContext
-from dagster._core.remote_representation.external import ExternalResource
+
+from src.data_vortex_dagster.resources import ExternalResource
 
 KEY_PREFIX = "ingest_rightmove_backfill"
 RIGHTMOVE_GROUP = "rightmove"
@@ -29,5 +30,5 @@ def raw_rightmove(
 def raw_ccc(
         context: AssetExecutionContext,
         external_resource: ExternalResource,
-) -> List[FileWithMetadata]:
-    return external_resource.read("source_ccc", context.partition_key)
+) -> List[bytes]:
+    return external_resource.read("source_rightmove_backfill", context.partition_key)
