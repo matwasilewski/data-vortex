@@ -28,3 +28,5 @@ tests/data_vortex/unit/__pycache__/*
 tests/data_vortex_dagster/__pycache__/*
 tests/data_vortex_dagster/unit/__pycache__/*
 tests/data_vortex_dagster/unit/assets/__pycache__/*
+/tests/data_vortex_dagster/unit/assets/logs/*
+/tests/data_vortex/unit/logs/*
