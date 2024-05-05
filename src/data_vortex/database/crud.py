@@ -13,7 +13,7 @@ from src.data_vortex.utils.config import settings
 def upsert_listing(
     db: Session, rental_listing: RightmoveRentalListing
 ) -> None:
-    if settings.DATABASE_TYPE != "sqlite":
+    if db.get_bind().dialect.name != "sqlite":
         raise NotImplementedError(
             "Only SQLite database is supported at the moment."
         )
@@ -40,7 +40,7 @@ def bulk_upsert_listings(
     raise NotImplementedError(
         "This function is not implemented yet. Please implement it."
     )
-    if settings.DATABASE_TYPE != "sqlite":
+    if db.get_bind().dialect.name != "sqlite":
         raise NotImplementedError(
             "Only SQLite database is supported at the moment."
         )
@@ -84,7 +84,7 @@ def bulk_upsert_listings(
 
 
 def get_listing(db: Session, property_id: str):
-    if settings.DATABASE_TYPE != "sqlite":
+    if db.get_bind().dialect.name != "sqlite":
         raise NotImplementedError(
             "Only SQLite database is supported at the moment."
         )
@@ -97,7 +97,7 @@ def get_listing(db: Session, property_id: str):
 
 
 def delete_listing(db: Session, property_id: str):
-    if settings.DATABASE_TYPE != "sqlite":
+    if db.get_bind().dialect.name != "sqlite":
         raise NotImplementedError(
             "Only SQLite database is supported at the moment."
         )
