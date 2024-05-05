@@ -8,7 +8,7 @@ KEY_PREFIX = "ingest_rightmove_backfill"
 RIGHTMOVE_GROUP = "rightmove"
 STATIC_PARTITIONS_DEF_RIGHTMOVE_BACKFILL = StaticPartitionsDefinition(
     [
-        "samplepartitions",
+        "partition_one",
     ]
 )
 
