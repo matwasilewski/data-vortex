@@ -1,3 +1,4 @@
+import json
 import re
 from typing import List
 
@@ -6,8 +7,11 @@ from pydantic import HttpUrl, ValidationError
 from requests import Response
 
 from src.data_vortex.rightmove_models import (
+    Currency,
     GenericListing,
-    RightmoveRentalListing, Price, Currency, PriceUnit,
+    Price,
+    PriceUnit,
+    RightmoveRentalListing,
 )
 from src.data_vortex.utils.logging import log
 
@@ -105,7 +109,7 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     description_meta_tag = soup.find("meta", property="og:description")
     description = description_meta_tag.get("content", None)
 
-    address_tag = soup.find('h1', itemprop='streetAddress')
+    address_tag = soup.find("h1", itemprop="streetAddress")
     address = address_tag.get_text(strip=True)
     postcode = extract_postcode(address)
 
@@ -114,11 +118,30 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     for span in price_spans:
         prices.append(extract_price_corrected(span.text.strip()))
 
+    script_tag = soup.find("script", text=re.compile("window.PAGE_MODEL"))
+    added_date = None
+    available_date = None
+
+    if script_tag:
+        match = re.search(
+            r"window\.PAGE_MODEL = ({.*})", script_tag.string, re.DOTALL
+        )
+
+        json_string = match.group(1)
+        data = json.loads(json_string)
+        added_date = (
+            data.get("analyticsInfo", {})
+            .get("analyticsProperty", {})
+            .get("added", None)
+        )
+        available_date = data.get("lettings", {}).get("letAvailableDate", None)
+
     return RightmoveRentalListing(
         property_id=property_id,
         description=description,
         price=prices[0],
-        added_date="2020-10-07",
+        added_date=added_date,
+        available_date=available_date,
         address=address,
         postcode=postcode,
     )
@@ -147,10 +170,7 @@ def extract_price_corrected(html_content: str) -> Price:
     prices_pattern = r"£(\d{1,3}(?:,\d{3})*?)\s*(pcm|pw)"
     prices = re.findall(prices_pattern, html_content)
 
-    unique_prices = {
-        PriceUnit.PER_MONTH: set(),
-        PriceUnit.PER_WEEK: set()
-    }
+    unique_prices = {PriceUnit.PER_MONTH: set(), PriceUnit.PER_WEEK: set()}
 
     for price_str, term in prices:
         _normalize_prices(price_str, term, unique_prices)
@@ -177,12 +197,14 @@ def _choose_price(unique_prices):
 def _check_for_more_than_one_unique_price_per_period_type(unique_prices):
     for period, prices_set in unique_prices.items():
         if len(prices_set) > 1:
-            raise ValueError(f"More than one unique price found for {period.value}")
+            raise ValueError(
+                f"More than one unique price found for {period.value}"
+            )
 
 
 def _normalize_prices(price_str, term, unique_prices):
-    price_int = int(price_str.replace(',', ''))
-    if term == 'pcm':
+    price_int = int(price_str.replace(",", ""))
+    if term == "pcm":
         unique_prices[PriceUnit.PER_MONTH].add(price_int)
-    elif term == 'pw':
+    elif term == "pw":
         unique_prices[PriceUnit.PER_WEEK].add(price_int)
