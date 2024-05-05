@@ -46,8 +46,10 @@ def test_get_listings(rightmove_sample: BeautifulSoup) -> None:
 def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
     listing = get_detailed_listing(rightmove_listing_sample)
     assert listing.property_id == "145459589"
-    assert listing.description == ("2 bedroom apartment for rent in Sycamore Street, London, EC1Y 0SR, UK, EC1Y for "
-                                   "£3,370 pcm. Marketed by BLUEGROUND FURNISHED APARTMENTS UK LTD, London")
+    assert listing.description == (
+        "2 bedroom apartment for rent in Sycamore Street, London, EC1Y 0SR, UK, EC1Y for "
+        "£3,370 pcm. Marketed by BLUEGROUND FURNISHED APARTMENTS UK LTD, London"
+    )
     assert listing.postcode == "EC1Y 0SR"
     assert listing.address == "Sycamore Street, London, EC1Y 0SR, UK"
     assert listing.price == Price(

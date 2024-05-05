@@ -3,8 +3,12 @@ from typing import List
 from bs4 import BeautifulSoup
 from dagster import AssetExecutionContext, StaticPartitionsDefinition, asset
 
-from src.data_vortex.rightmove_models import GenericListing, RightmoveRentalListing
-from src.data_vortex.rightmove_processing import get_listings, get_detailed_listing
+from src.data_vortex.rightmove_models import (
+    RightmoveRentalListing,
+)
+from src.data_vortex.rightmove_processing import (
+    get_detailed_listing,
+)
 from src.data_vortex_dagster.resources import ExternalResource
 
 KEY_PREFIX = "ingest_rightmove_backfill"
@@ -22,10 +26,12 @@ STATIC_PARTITIONS_DEF_RIGHTMOVE_BACKFILL = StaticPartitionsDefinition(
     partitions_def=STATIC_PARTITIONS_DEF_RIGHTMOVE_BACKFILL,
 )
 def raw_rightmove(
-        context: AssetExecutionContext,
-        external_resource: ExternalResource,
+    context: AssetExecutionContext,
+    external_resource: ExternalResource,
 ) -> List[bytes]:
-    return external_resource.read("source_rigthmove_backfill", context.partition_key)
+    return external_resource.read(
+        "source_rigthmove_backfill", context.partition_key
+    )
 
 
 @asset(
@@ -34,8 +40,8 @@ def raw_rightmove(
     partitions_def=STATIC_PARTITIONS_DEF_RIGHTMOVE_BACKFILL,
 )
 def parsed_rightmove(
-        context: AssetExecutionContext,
-        raw_rightmove: List[bytes],
+    context: AssetExecutionContext,
+    raw_rightmove: List[bytes],
 ) -> List[RightmoveRentalListing]:
     out = []
 
