@@ -49,6 +49,7 @@ class GenericListing(BaseModel):
     available_date: Optional[datetime.date] = None
     address: Optional[str]
     postcode: Optional[str]
+    furnished_status: Optional[FurnishedStatus] = None
     created_date: datetime.datetime = Field(
         default_factory=datetime.datetime.now
     )
