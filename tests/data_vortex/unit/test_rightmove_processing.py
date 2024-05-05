@@ -5,7 +5,12 @@ import pytest
 from bs4 import BeautifulSoup
 from pydantic import HttpUrl
 
-from src.data_vortex.rightmove_models import Currency, Price, PriceUnit, FurnishedStatus
+from src.data_vortex.rightmove_models import (
+    Currency,
+    FurnishedStatus,
+    Price,
+    PriceUnit,
+)
 from src.data_vortex.rightmove_processing import (
     get_detailed_listing,
     get_listings,
@@ -57,6 +62,6 @@ def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
     )
     assert listing.added_date == datetime.date(2024, 3, 7)
     assert listing.image_url == HttpUrl(
-        'https://media.rightmove.co.uk/79k/78429/145459589/78429_LON-489_IMG_08_0000.jpeg'
+        "https://media.rightmove.co.uk/79k/78429/145459589/78429_LON-489_IMG_08_0000.jpeg"
     )
     assert listing.furnished_status == FurnishedStatus.FURNISHED

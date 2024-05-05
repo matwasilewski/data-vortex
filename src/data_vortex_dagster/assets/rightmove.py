@@ -51,3 +51,22 @@ def parsed_rightmove(
         out.append(nested_listings)
 
     return out
+
+
+@asset(
+    key_prefix=KEY_PREFIX,
+    group_name=RIGHTMOVE_GROUP,
+    partitions_def=STATIC_PARTITIONS_DEF_RIGHTMOVE_BACKFILL,
+)
+def db_rightmove(
+    context: AssetExecutionContext,
+    parsed_rightmove: List[bytes],
+) -> None:
+    out = []
+
+    for listing_bytes in raw_rightmove:
+        bs = BeautifulSoup(listing_bytes.decode("utf-8"), "html.parser")
+        nested_listings = get_detailed_listing(bs)
+        out.append(nested_listings)
+
+    return out

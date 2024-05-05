@@ -8,10 +8,11 @@ from requests import Response
 
 from src.data_vortex.rightmove_models import (
     Currency,
+    FurnishedStatus,
     GenericListing,
     Price,
     PriceUnit,
-    RightmoveRentalListing, FurnishedStatus,
+    RightmoveRentalListing,
 )
 from src.data_vortex.utils.logging import log
 
@@ -135,13 +136,24 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
             .get("analyticsProperty", {})
             .get("added", None)
         )
-        available_date = data.get("propertyData", {}).get("lettings", {}).get("letAvailableDate", None)
-        furnish_type_str = data.get("propertyData", {}).get("lettings", {}).get("furnishType", None)
-        furnish_type = FurnishedStatus[furnish_type_str.upper()] if furnish_type_str else None
+        available_date = (
+            data.get("propertyData", {})
+            .get("lettings", {})
+            .get("letAvailableDate", None)
+        )
+        furnish_type_str = (
+            data.get("propertyData", {})
+            .get("lettings", {})
+            .get("furnishType", None)
+        )
+        furnish_type = (
+            FurnishedStatus[furnish_type_str.upper()]
+            if furnish_type_str
+            else None
+        )
 
     image_tag = soup.find("meta", property="og:image")
     image_url = image_tag.get("content", None)
-
 
     return RightmoveRentalListing(
         property_id=property_id,
