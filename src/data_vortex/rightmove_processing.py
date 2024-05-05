@@ -93,11 +93,8 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
 def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     # TODO: this function parser individual listing soup into a detailed listing
     # Find meta tag with property='og:url'
-    meta_tag = soup.find("meta", property="og:url")
-
-    # Extract URL from content attribute
-    property_url = meta_tag["content"]
-
+    url_meta_tag = soup.find("meta", property="og:url")
+    property_url = url_meta_tag["content"]
     property_id_match = re.search(r"/properties/(\d+)", property_url)
 
     if property_id_match:
@@ -105,9 +102,13 @@ def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
     else:
         raise ValueError("Property ID not found in the URL.")
 
+    # Find the description
+    description_meta_tag = soup.find("meta", property="og:description")
+    description = description_meta_tag.get("content", None)
+
     return RightmoveRentalListing(
         property_id=property_id,
-        description="Lorem iősifk",
+        description=description,
         price="5000",
         added_date="2020-10-07",
         address="Lorem impsum EC1Y 0RJ",
