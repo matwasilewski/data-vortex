@@ -53,3 +53,4 @@ def test_get_detailed_listing(rightmove_listing_sample: BeautifulSoup):
     assert listing.price == Price(
         price=3370.0, currency=Currency.GBP, per=PriceUnit.PER_MONTH
     )
+    assert listing.added_date == datetime.date(2024, 3, 7)
