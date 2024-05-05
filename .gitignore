@@ -22,3 +22,9 @@ alembic/versions/__pycache__/*
 notebooks/.ipynb_checkpoints/*
 src/__pycache__/*
 src/data_vortex_dagster/__pycache__/*
+src/data_vortex_dagster/assets/__pycache__/*
+tests/data_vortex/__pycache__/*
+tests/data_vortex/unit/__pycache__/*
+tests/data_vortex_dagster/__pycache__/*
+tests/data_vortex_dagster/unit/__pycache__/*
+tests/data_vortex_dagster/unit/assets/__pycache__/*
