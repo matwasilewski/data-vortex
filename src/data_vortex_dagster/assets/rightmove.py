@@ -60,13 +60,6 @@ def parsed_rightmove(
 )
 def db_rightmove(
     context: AssetExecutionContext,
-    parsed_rightmove: List[bytes],
+    parsed_rightmove: List[RightmoveRentalListing],
 ) -> None:
     out = []
-
-    for listing_bytes in raw_rightmove:
-        bs = BeautifulSoup(listing_bytes.decode("utf-8"), "html.parser")
-        nested_listings = get_detailed_listing(bs)
-        out.append(nested_listings)
-
-    return out
