@@ -88,7 +88,7 @@ def test_rightmove_parse(dagster_resources_root: Path) -> None:
         price=4400, currency=Currency.GBP, per=PriceUnit.PER_MONTH
     )
     assert listing_two.address == "Nottingham Place, London, W1U 5NB, UK"
-    assert listing_two.postode == "W1U 5NB"
+    assert listing_two.postcode == "W1U 5NB"
 
 
 def test_rightmove_parse_empty(dagster_resources_root: Path) -> None:
