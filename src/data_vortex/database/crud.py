@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 from src.data_vortex.database.models import RentalListing
 from src.data_vortex.rightmove_models import RightmoveRentalListing
-from src.data_vortex.utils.config import settings
 
 
 def upsert_listing(

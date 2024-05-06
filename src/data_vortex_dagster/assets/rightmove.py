@@ -1,7 +1,12 @@
 from typing import List
 
 from bs4 import BeautifulSoup
-from dagster import AssetExecutionContext, StaticPartitionsDefinition, asset
+from dagster import (
+    AssetExecutionContext,
+    AssetIn,
+    StaticPartitionsDefinition,
+    asset,
+)
 
 from src.data_vortex.rightmove_models import (
     RightmoveRentalListing,
@@ -56,11 +61,16 @@ def parsed_rightmove(
 @asset(
     key_prefix=KEY_PREFIX,
     group_name=RIGHTMOVE_GROUP,
+    ins={
+        "documents": AssetIn(
+            key=[KEY_PREFIX, "parsed_rightmove"],
+            input_manager_key="io_manager",
+        ),
+    },
     partitions_def=STATIC_PARTITIONS_DEF_RIGHTMOVE_BACKFILL,
+    io_manager_key="datastore_io_manager",
 )
 def db_rightmove(
-    context: AssetExecutionContext,
-    db_resource: ExternalResource,
-    parsed_rightmove: List[RightmoveRentalListing],
-) -> None:
-    out = []
+    documents: List[RightmoveRentalListing],
+) -> List[RightmoveRentalListing]:
+    return documents

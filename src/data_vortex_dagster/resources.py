@@ -1,10 +1,10 @@
+from contextlib import contextmanager
 from pathlib import Path
 from typing import List, Optional
-from contextlib import contextmanager
 
 from dagster import ConfigurableResource
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 
 class ExternalResource(ConfigurableResource):
@@ -60,8 +60,10 @@ class DbResource(ConfigurableResource):
     @property
     def sessionmaker(self):
         # Ensure that sessionmaker is only created once
-        if not hasattr(self, '_sessionmaker'):
-            self._sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        if not hasattr(self, "_sessionmaker"):
+            self._sessionmaker = sessionmaker(
+                autocommit=False, autoflush=False, bind=self.engine
+            )
         return self._sessionmaker
 
     @contextmanager
@@ -76,5 +78,3 @@ class DbResource(ConfigurableResource):
             raise
         finally:
             session.close()
-
-

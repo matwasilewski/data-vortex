@@ -1,8 +1,14 @@
 import datetime
+import os
+import tempfile
 from pathlib import Path
+from typing import Generator, Tuple
 
+import pytest
 from dagster import materialize
 from pydantic_core import Url
+from sqlalchemy import Column, Integer, MetaData, String, Table
+from sqlalchemy.engine import Engine
 
 from src.data_vortex.rightmove_models import (
     Currency,
@@ -11,10 +17,11 @@ from src.data_vortex.rightmove_models import (
     PriceUnit,
 )
 from src.data_vortex_dagster.assets.rightmove import (
+    db_rightmove,
     parsed_rightmove,
     raw_rightmove,
 )
-from src.data_vortex_dagster.resources import ExternalResourceOnFs
+from src.data_vortex_dagster.resources import DbResource, ExternalResourceOnFs
 
 
 def test_rightmove_raw(dagster_resources_root: Path) -> None:
@@ -78,7 +85,7 @@ def test_rightmove_parse(dagster_resources_root: Path) -> None:
     assert (
         listing_two.description
         == "2 bedroom apartment for rent in Nottingham Place, London, W1U 5NB, UK, W1U for £4,400 pcm. Marketed by "
-           "BLUEGROUND FURNISHED APARTMENTS UK LTD, London"
+        "BLUEGROUND FURNISHED APARTMENTS UK LTD, London"
     )
     assert listing_two.furnished_status == FurnishedStatus.FURNISHED
     assert listing_two.image_url == Url(
@@ -91,5 +98,48 @@ def test_rightmove_parse(dagster_resources_root: Path) -> None:
     assert listing_two.postcode == "W1U 5NB"
 
 
-def test_rightmove_parse_empty(dagster_resources_root: Path) -> None:
-    return None
+@pytest.fixture()
+def db_resource() -> Generator[Tuple[DbResource, Table, Engine], None, None]:
+    db_file = tempfile.NamedTemporaryFile(delete=False)
+    url = f"sqlite:///{db_file.name}"
+    resource = DbResource(url=url)
+    engine = resource.engine
+
+    metadata = MetaData()
+    test_table = Table(
+        "test_table",
+        metadata,
+        Column("id", Integer, primary_key=True),
+        Column("name", String),
+    )
+
+    metadata.create_all(engine)
+    yield resource, test_table, engine
+
+    engine.dispose()
+    os.unlink(db_file.name)
+
+
+def test_rightmove_parse_empty(
+    db_resource: Tuple[DbResource, Table, Engine],
+) -> None:
+    resource, test_table, engine = db_resource
+    assets = [
+        raw_rightmove,
+        parsed_rightmove,
+        db_rightmove,
+    ]
+    result = materialize(
+        assets,
+        resources={
+            "db_resource": resource,
+            "datastore_io_manager": resource.io_manager,
+        },
+        partition_key="partition_one",
+    )
+
+    assert result.success
+    asset_val = result.asset_value(
+        ["ingest_rightmove_backfill", "db_rightmove"]
+    )
+    assert len(asset_val) == 2

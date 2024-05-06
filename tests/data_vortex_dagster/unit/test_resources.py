@@ -3,14 +3,12 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from dagster import ConfigurableResource
-from sqlalchemy import MetaData, Table, Column, Integer, String, Inspector
-
-from data_vortex_dagster.resources import ExternalResourceOnFs, DbResource
+from data_vortex_dagster.resources import DbResource, ExternalResourceOnFs
+from sqlalchemy import Column, Integer, MetaData, String, Table
 
 
 def test_external_resource_on_fs_without_partitions(
-        dagster_resources_root: Path,
+    dagster_resources_root: Path,
 ) -> None:
     path = str(dagster_resources_root)
     resource = ExternalResourceOnFs(base_dir=path)
@@ -21,7 +19,7 @@ def test_external_resource_on_fs_without_partitions(
 
 
 def test_external_resource_on_fs_with_dir(
-        dagster_resources_root: Path,
+    dagster_resources_root: Path,
 ) -> None:
     path = str(dagster_resources_root)
     resource = ExternalResourceOnFs(base_dir=path)
@@ -32,7 +30,7 @@ def test_external_resource_on_fs_with_dir(
 
 
 def test_external_resource_on_fs_with_partitions(
-        dagster_resources_root: Path,
+    dagster_resources_root: Path,
 ) -> None:
     path = str(dagster_resources_root)
     resource = ExternalResourceOnFs(base_dir=path)
@@ -49,17 +47,20 @@ def test_external_resource_on_fs_with_partitions(
     assert len(files_with_meta) == 2
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def db_resource():
     db_file = tempfile.NamedTemporaryFile(delete=False)
-    url = f'sqlite:///{db_file.name}'
+    url = f"sqlite:///{db_file.name}"
     resource = DbResource(url=url)
     engine = resource.engine
 
     metadata = MetaData()
-    test_table = Table('test_table', metadata,
-                       Column('id', Integer, primary_key=True),
-                       Column('name', String))
+    test_table = Table(
+        "test_table",
+        metadata,
+        Column("id", Integer, primary_key=True),
+        Column("name", String),
+    )
 
     metadata.create_all(engine)
     yield resource, test_table, engine
@@ -67,18 +68,19 @@ def db_resource():
     engine.dispose()
     os.unlink(db_file.name)
 
+
 def test_engine_initialization(db_resource) -> None:
     resource, test_table, engine = db_resource
     assert engine is not None
-    assert engine.url.drivername.startswith('sqlite')
+    assert engine.url.drivername.startswith("sqlite")
 
 
 def test_session_creation_and_usage(db_resource):
     resource, test_table, engine = db_resource
     with resource.get_session() as session:
-        session.execute(test_table.insert(), {'name': 'Jane Doe'})
+        session.execute(test_table.insert(), {"name": "Jane Doe"})
         session.commit()
 
         result = session.execute(test_table.select()).fetchall()
         assert len(result) == 1
-        assert result[0]._asdict()['name'] == 'Jane Doe'
+        assert result[0]._asdict()["name"] == "Jane Doe"
