@@ -1,7 +1,10 @@
 from pathlib import Path
 from typing import List, Optional
+from contextlib import contextmanager
 
 from dagster import ConfigurableResource
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
 
 
 class ExternalResource(ConfigurableResource):
@@ -45,3 +48,33 @@ class ExternalResourceOnFs(ExternalResource):
                     files_as_bytes.append(file.read())
 
         return files_as_bytes
+
+
+class DbResource(ConfigurableResource):
+    url: str
+
+    @property
+    def engine(self):
+        return create_engine(self.url)
+
+    @property
+    def sessionmaker(self):
+        # Ensure that sessionmaker is only created once
+        if not hasattr(self, '_sessionmaker'):
+            self._sessionmaker = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        return self._sessionmaker
+
+    @contextmanager
+    def get_session(self) -> Session:
+        """Provide a transactional scope around a series of operations."""
+        session = self.sessionmaker()
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+
