@@ -89,3 +89,7 @@ def test_rightmove_parse(dagster_resources_root: Path) -> None:
     )
     assert listing_two.address == "Nottingham Place, London, W1U 5NB, UK"
     assert listing_two.postode == "W1U 5NB"
+
+
+def test_rightmove_parse_empty(dagster_resources_root: Path) -> None:
+    return None

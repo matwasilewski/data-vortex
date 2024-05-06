@@ -60,6 +60,7 @@ def parsed_rightmove(
 )
 def db_rightmove(
     context: AssetExecutionContext,
+    db_resource: ExternalResource,
     parsed_rightmove: List[RightmoveRentalListing],
 ) -> None:
     out = []
