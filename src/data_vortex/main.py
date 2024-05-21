@@ -1,10 +1,11 @@
-from bs4 import BeautifulSoup
+from pathlib import Path
 
-from src.data_vortex.database import crud
-from src.data_vortex.database.database import SessionLocal, create_database
-from src.data_vortex.database.models import RentalListing
-from src.data_vortex.rightmove_models import GenericListing
-from src.data_vortex.rightmove_processing import get_listings
+from bs4 import BeautifulSoup
+from data_vortex.database import crud
+from data_vortex.database.database import SessionLocal, create_database
+from data_vortex.database.models import RentalListing
+from data_vortex.rightmove_models import GenericListing
+from data_vortex.rightmove_processing import get_listings
 
 create_database()
 
@@ -40,12 +41,12 @@ def create_and_fetch_listing(listing_data: GenericListing) -> None:
 
 
 if __name__ == "__main__":
-    with open(
+    with Path(
         "/Users/mwasilewski/Code/data-vortex/tests/resources/rightmove_full_rental_query.xml"
-    ) as f:
+    ).open() as f:
         soup = BeautifulSoup(f.read(), "html.parser")
 
     listings = get_listings(soup)
 
-    for l in listings:
-        create_and_fetch_listing(l)
+    for listing in listings:
+        create_and_fetch_listing(listing)

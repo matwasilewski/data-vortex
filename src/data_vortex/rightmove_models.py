@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum
 from types import MappingProxyType
-from typing import Mapping, Optional, Any
+from typing import Any, Mapping, Optional
 
 from pydantic import (
     BaseModel,
@@ -80,7 +80,6 @@ class GenericListing(BaseModel):
             created_date=obj_dict["created_date"],
         )
 
-
     @field_validator("property_id")
     @classmethod
     def property_id_is_not_zero(cls, v: str) -> str:
@@ -147,10 +146,10 @@ class GenericListing(BaseModel):
         # Remove any commas and convert to integer
         try:
             amount = int(v.replace(",", ""))
-        except:
+        except Exception as e:
             raise ValueError(
                 f"Listing must have a price! Raw price found: {v}"
-            )
+            ) from e
         # Return a Price instance
         return Price(price=amount, currency=currency, per=per)
 
@@ -209,7 +208,7 @@ class RequestData(BaseModel):
     class Config:
         frozen = True
 
-    def __init__(__pydantic_self__, **data):
+    def __init__(__pydantic_self__, **data):  # noqa: N805
         super().__init__(**data)
         # Convert headers to immutable type immediately upon initialization
         object.__setattr__(

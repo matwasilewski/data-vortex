@@ -1,11 +1,10 @@
 from sqlite3 import DatabaseError, IntegrityError
 from typing import List
 
-from sqlalchemy import update, insert
+from data_vortex.database.models import RentalListing
+from data_vortex.rightmove_models import RightmoveRentalListing
+from sqlalchemy import insert, update
 from sqlalchemy.orm import Session
-
-from src.data_vortex.rightmove_models import RightmoveRentalListing
-from src.data_vortex.database.models import RentalListing
 
 
 def create_listing(db: Session, rental_listing: RightmoveRentalListing):
@@ -39,11 +38,13 @@ def upsert_listing(db: Session, rental_listing: RightmoveRentalListing):
         return rental_listing
     except Exception as e:
         db.rollback()
-        raise Exception(f"Database error during upsert: {e!s}")
+        raise Exception(f"Database error during upsert: {e!s}") from e
 
 
 def bulk_upsert_listings(
-    db: Session, new_listings: List[RightmoveRentalListing], unique_attr="property_id"
+    db: Session,
+    new_listings: List[RightmoveRentalListing],
+    unique_attr="property_id",
 ):
     try:
         unique_ids = [
@@ -85,7 +86,7 @@ def bulk_upsert_listings(
         db.commit()
     except Exception as e:
         db.rollback()
-        raise Exception(f"Database error during bulk upsert: {e}")
+        raise Exception(f"Database error during bulk upsert: {e}") from e
 
 
 def get_listing(db: Session, property_id: str):
@@ -108,7 +109,7 @@ def update_listing(db: Session, property_id: str, **updates):
             raise ValueError("Listing not found for the provided property_id.")
     except DatabaseError as e:
         db.rollback()
-        raise Exception(f"Database error during update: {e!s}")
+        raise Exception(f"Database error during update: {e!s}") from e
 
 
 def delete_listing(db: Session, property_id: str):
@@ -121,4 +122,4 @@ def delete_listing(db: Session, property_id: str):
             raise ValueError("Listing not found for the provided property_id.")
     except DatabaseError as e:
         db.rollback()
-        raise Exception(f"Database error during deletion: {e!s}")
+        raise Exception(f"Database error during deletion: {e!s}") from e

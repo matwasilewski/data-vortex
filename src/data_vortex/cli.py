@@ -1,9 +1,8 @@
 from itertools import product
 
 import click
-
-from src.data_vortex.rightmove_models import RightmoveRentParams
-from src.data_vortex.rightmove_query import get_new_listings
+from data_vortex.rightmove_models import RightmoveRentParams
+from data_vortex.rightmove_query import get_new_listings
 
 
 @click.group()

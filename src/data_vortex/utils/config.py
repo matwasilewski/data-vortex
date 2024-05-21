@@ -77,7 +77,9 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings(_env_file=Path(__file__).resolve().parent.parent.parent.parent / ".env")
+    return Settings(
+        _env_file=Path(__file__).resolve().parent.parent.parent.parent / ".env"
+    )
 
 
 settings = get_settings()

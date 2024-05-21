@@ -6,11 +6,10 @@ from pathlib import Path
 
 import requests
 from cachetools import TTLCache
-
-from src.data_vortex.rightmove_models import RequestData, RightmoveRentParams
-from src.data_vortex.rightmove_processing import get_listings, process_response
-from src.data_vortex.utils.config import settings
-from src.data_vortex.utils.logging import log
+from data_vortex.rightmove_models import RequestData, RightmoveRentParams
+from data_vortex.rightmove_processing import get_listings, process_response
+from data_vortex.utils.config import settings
+from data_vortex.utils.logging import log
 
 RIGHTMOVE_RENT_SEARCH_URL = (
     "https://www.rightmove.co.uk/property-to-rent/find.html"
@@ -111,7 +110,6 @@ def download_listing(listing_id: str) -> bool:
         Path(settings.RAW_LISTING_DIR) / f"raw_property_{listing_id}.html"
     )
 
-    # Check if the file already exists
     if filename.exists():
         log.info(
             f"Listing with ID {listing_id} already exists. Skipping download."
@@ -126,7 +124,7 @@ def download_listing(listing_id: str) -> bool:
         )
         return False
 
-    with open(filename, "wb") as f:
+    with filename.open("wb") as f:
         f.write(response.content)
     log.info(f"Listing with ID {listing_id} downloaded to {filename}")
     return True
@@ -167,15 +165,13 @@ def get_new_listings(
         for listing in listings:
             filename = dir_path / f"property_{listing.property_id}.json"
 
-            # Check if file already exists
             if not filename.exists():
                 all_files_exist = False
                 num_new_properties += 1
                 listing_json = listing.model_dump_json(
                     indent=2
                 )  # Assuming this method returns the JSON representation
-                # Save the JSON to a file
-                with open(filename, "w") as f:
+                with filename.open("w") as f:
                     json.dump(listing_json, f, indent=2)
                 log.info(f"New listing saved: {filename}")
 

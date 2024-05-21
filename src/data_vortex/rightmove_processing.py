@@ -2,14 +2,13 @@ import re
 from typing import List
 
 from bs4 import BeautifulSoup
-from pydantic import HttpUrl, ValidationError
-from requests import Response
-
-from src.data_vortex.rightmove_models import (
+from data_vortex.rightmove_models import (
     GenericListing,
     RightmoveRentalListing,
 )
-from src.data_vortex.utils.logging import log
+from data_vortex.utils.logging import log
+from pydantic import HttpUrl, ValidationError
+from requests import Response
 
 
 def process_response(response: Response) -> BeautifulSoup:
@@ -91,7 +90,7 @@ def get_listings(soup: BeautifulSoup) -> List[GenericListing]:
 
 
 def get_detailed_listing(soup: BeautifulSoup) -> RightmoveRentalListing:
-    # TODO: this function parser individual listing soup into a detailed listing
+    # TODO(mateusz.wasilewski): this function parser individual listing soup into a detailed listing
     # Find meta tag with property='og:url'
     meta_tag = soup.find("meta", property="og:url")
 
